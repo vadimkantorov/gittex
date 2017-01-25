@@ -1,5 +1,7 @@
 # gittex
+
 A git-savy serverless LaTeX editor running in browser. Workflow:
+
 1. Pull a git repo
 2. Edit files in browser
 3. Edit commit message
