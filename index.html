@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>git</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.11.23/css/jquery.terminal.min.css" />
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.11.23/js/jquery.terminal.min.js"></script>
+    <script src="gittex.js"></script>
+  </head>
+  <body>
+    <div id="term_demo"></div>
+    <script>
+	    $('#term_demo').terminal(function(command, term) {
+	        if (command !== '') {
+	            try {
+	                var result = gittex_eval(command);
+	                if (result !== undefined) {
+	                    term.echo(new String(result));
+	                }
+	            } catch(e) {
+	                term.error(new String(e));
+	                throw e;
+	            }
+	        } else {
+	           term.echo('');
+	        }
+	    }, {
+	        greetings: 'HELLO WORLD by gittex',
+	        height: 200,
+	        prompt: '> '}
+	    );
+    </script>
+  </body>
+</html>
