@@ -1,9 +1,10 @@
 # gittex
 
-A git-savvy LaTeX editor running in browser. Workflow:
+A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 
 1. Pull a git repo
-2. Edit files in browser
+2. Edit LaTeX files in browser
+3. Check a PDF preview
 3. Edit commit message
 4. Push back updates
 5. Publish the produced PDF as GitHub release
