@@ -19,7 +19,7 @@ A git-savvy LaTeX editor running in browser. Workflow:
 - [ ] texlive.js
 - [ ] pdf.js
 - [ ] publish pdf as github release
-- [ ] file explorer, visual editor with syntax highlighting, pdf preview
+- [ ] file explorer | visual text editor with syntax highlighting | pdf preview + terminal (at bottom)
 - [ ] git merge
 
 # Links
