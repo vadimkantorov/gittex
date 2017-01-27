@@ -24,6 +24,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - [ ] git merge
 
 # Links
+- http://kripken.github.io/emscripten-site/docs/building_from_source/building_emscripten_from_source_on_linux.html
 - https://github.com/zodiac/libgit2.js
 - https://github.com/coolwanglu/vim.js
 - https://github.com/manuels/texlive.js/
