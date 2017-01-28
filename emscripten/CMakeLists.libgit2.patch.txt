@@ -1,0 +1,53 @@
+@@ -94,9 +94,6 @@ INCLUDE_DIRECTORIES(src include)
+ IF (WIN32 AND NOT MINGW)
+ 	ADD_DEFINITIONS(-DGIT_WINHTTP)
+ ELSE ()
+-	IF (NOT AMIGA)
+-		FIND_PACKAGE(OpenSSL)
+-	ENDIF ()
+ 	FILE(GLOB SRC_HTTP deps/http-parser/*.c)
+ 	INCLUDE_DIRECTORIES(deps/http-parser)
+ ENDIF()
+ @@ -128,15 +125,11 @@ IF(NOT ZLIB_LIBRARY)
+ 	# error.
+ 	FIND_PACKAGE(ZLIB QUIET)
+ ENDIF()
+-IF (ZLIB_FOUND)
+-	INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+-	LINK_LIBRARIES(${ZLIB_LIBRARIES})
+-ELSE()
+-	MESSAGE( "zlib was not found; using bundled 3rd-party sources." )
+-	INCLUDE_DIRECTORIES(deps/zlib)
+-	ADD_DEFINITIONS(-DNO_VIZ -DSTDC -DNO_GZIP)
+-	FILE(GLOB SRC_ZLIB deps/zlib/*.c)
+-ENDIF()
++
++MESSAGE( "zlib was not found; using bundled 3rd-party sources." )
++INCLUDE_DIRECTORIES(deps/zlib)
++ADD_DEFINITIONS(-DNO_VIZ -DSTDC -DNO_GZIP)
++FILE(GLOB SRC_ZLIB deps/zlib/*.c)
+ 
+ # Platform specific compilation flags
+ IF (MSVC)
+ @@ -275,7 +268,7 @@ ELSEIF (AMIGA)
+ ELSE()
+ 	FILE(GLOB SRC_OS src/unix/*.c)
+ ENDIF()
+-FILE(GLOB SRC_GIT2 src/*.c src/transports/*.c src/xdiff/*.c)
++FILE(GLOB SRC_GIT2 src/*.c src/transports/*.c src/xdiff/*.c src/porcelain/*.c)
+ 
+ # Determine architecture of the machine
+ IF (CMAKE_SIZEOF_VOID_P EQUAL 8)
+ @@ -401,3 +394,12 @@ IF (BUILD_EXAMPLES)
+ 	ADD_EXECUTABLE(git-rev-list examples/rev-list.c)
+ 	TARGET_LINK_LIBRARIES(git-rev-list git2)
+ ENDIF ()
++
++SET(CMAKE_VERBOSE_MAKEFILE true)
++
++set(EMSCRIPTEN_ROOT_PATH "/home/xuanji/tools/emscripten")
++
++set(CMAKE_C_COMPILER "${EMSCRIPTEN_ROOT_PATH}/emcc")
++set(CMAKE_CXX_COMPILER "${EMSCRIPTEN_ROOT_PATH}/em++")
++set(CMAKE_AR "${EMSCRIPTEN_ROOT_PATH}/emar")
++set(CMAKE_RANLIB "${EMSCRIPTEN_ROOT_PATH}/emranlib")
