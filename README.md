@@ -11,7 +11,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 
 # Plan
 - [x] jquery.terminal
-- [ ] build emscripten
+- [x] build emscripten
 - [ ] port libgit2.js build scripts, build libgit2
 - [ ] git clone
 - [ ] git commit
