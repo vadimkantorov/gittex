@@ -31,3 +31,4 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - https://github.com/github-tools/github
 - https://github.com/jcubic/jquery.terminal
 - https://github.com/libgit2/libgit2sharp/wiki/git-push
+- http://ben.straub.cc/2013/02/01/stupid-libgit2-tricks-cloning/
