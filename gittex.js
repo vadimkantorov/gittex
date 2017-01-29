@@ -1,11 +1,14 @@
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number'])
+git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', [])
 
 function gittex_eval(command)
 {
-	var repo = Module._malloc(new Uint32Array(1).BYTES_PER_ELEMENT);
-	//Module.HEAPU8.set(myTypedArray, repo);
-	var ret = git_clone(repo, 'http://github.com/vadimkantorov/gittex', 'gittex');
-	Module._free(repo)
+	var ret = git_libgit2_init();
+	console.log(ret);
+	var repo = Module._malloc(4);
+	Module.setValue(repo, 0, 'i32')
+	var ret = git_clone(repo, 'git://github.com/vadimkantorov/gittex.git', 'gittex', 0);
+	Module._free(repo);
 	console.log(ret);
 	return "Command was: " + command;
 }
