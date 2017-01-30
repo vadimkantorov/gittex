@@ -14,6 +14,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - [x] build emscripten
 - [x] port libgit2.js build scripts, build libgit2
 - [ ] git clone
+  - https://github.com/kripken/emscripten/issues/4902
 - [ ] git commit
 - [ ] git push
 - [ ] vim.js
