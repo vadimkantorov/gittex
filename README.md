@@ -18,6 +18,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
   - print giterr_last()->message in mytest.c
   - https://github.com/libgit2/libgit2/blob/master/src/socket_stream.c
   - https://github.com/libgit2/libgit2/blob/master/src/transports/local.c
+  - https://github.com/libgit2/libgit2/blob/master/include/git2/sys/transport.h
 - [ ] git commit
 - [ ] git push
 - [ ] vim.js
