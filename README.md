@@ -38,3 +38,5 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - http://ben.straub.cc/2013/02/01/stupid-libgit2-tricks-cloning/
 - https://github.com/creationix/js-git#mounting-github-repos
 - https://developer.github.com/v3/git/
+- https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#implement-c-in-javascript
+- https://github.com/zodiac/libgit2.js/issues/3
