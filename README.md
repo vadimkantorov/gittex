@@ -17,6 +17,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
   - https://github.com/kripken/emscripten/issues/4902
   - print giterr_last()->message in mytest.c
   - https://github.com/libgit2/libgit2/blob/master/src/socket_stream.c
+  - https://github.com/libgit2/libgit2/blob/master/src/transports/local.c
 - [ ] git commit
 - [ ] git push
 - [ ] vim.js
