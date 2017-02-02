@@ -2,9 +2,7 @@ git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', '
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', [])
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number'])
 
-typedef int (*git_transport_cb)(git_transport **out, git_remote *owner, void *param);
-
-function github_api_transport_cb(out, owner, param)
+function github_api_transport_cb(out, owner, param) //git_transport_cb
 {
 	return {
 		version : 1,
