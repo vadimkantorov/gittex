@@ -16,7 +16,6 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - [ ] implement in JavaScript libgit2 transport github:// using AJAX requests to GitHub API
 - [ ] git clone
   - https://github.com/kripken/emscripten/issues/4902
-  - print giterr_last()->message in mytest.c
   - https://github.com/libgit2/libgit2/blob/master/src/socket_stream.c
   - https://github.com/libgit2/libgit2/blob/master/src/transports/local.c
   - https://github.com/libgit2/libgit2/blob/master/include/git2/sys/transport.h
