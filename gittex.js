@@ -1,5 +1,25 @@
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number'])
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', [])
+git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number'])
+
+function github_api_transport()
+{
+	return {
+		version : 1,
+		set_callbacks : function(transport, progress_cb, error_cb, certificate_check_cb, payload) { },
+		set_custom_headers : function(transport, custom_headers) { },
+		connect : function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { },
+		ls : function(out, size, transport) { },
+		push : function(transport, push, callbacks) { },
+		negotiate_fetch : function(transport, repo, refs, count) { },
+		download_pack : function(transport, repo, stats, progress_cb, progress_payload) { },
+		is_connected : function(transport) { },
+		read_flags : function(transport, flags) { },
+		cancel : function(transport) { },
+		close : function(transport) { },
+		free : function(transport) { }
+	}
+}
 
 function gittex_eval(command)
 {
