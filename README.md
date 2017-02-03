@@ -13,6 +13,8 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - [x] jquery.terminal
 - [x] build emscripten
 - [x] port libgit2.js build scripts, build libgit2
+- [ ] embdind git_transport
+- [ ] plug in a null transport
 - [ ] implement in JavaScript libgit2 transport github:// using AJAX requests to GitHub API
 - [ ] git clone
   - https://github.com/kripken/emscripten/issues/4902
