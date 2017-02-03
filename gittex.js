@@ -24,13 +24,19 @@ function github_api_transport_cb(out, owner, param) //git_transport_cb
 	}
 }
 
-function gittex_eval(command)
+function libgit2_init()
 {
 	console.log('init: ', git_libgit2_init());
 	console.log('register: ', git_transport_register('github://', github_api_transport_cb, NULL));
+}
+
+function gittex_eval(command)
+{
 	//var repo = Module._malloc(4);
 	//Module.setValue(repo, 0, 'i32')
 	//console.log('clone:', git_clone(repo, 'github://github.com/vadimkantorov/gittex.git', 'gittex', 0));
 	//Module._free(repo);
 	return "Command was: " + command;
 }
+
+libgit2_init();
