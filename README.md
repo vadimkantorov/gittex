@@ -19,6 +19,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
   - https://github.com/libgit2/libgit2/blob/master/src/socket_stream.c
   - https://github.com/libgit2/libgit2/blob/master/src/transports/local.c
   - https://github.com/libgit2/libgit2/blob/master/include/git2/sys/transport.h
+  - https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html
 - [ ] git commit
 - [ ] git push
 - [ ] vim.js
