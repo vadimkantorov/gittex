@@ -11,5 +11,6 @@ EMSCRIPTEN_BINDINGS(libgit2)
   function("giterr_last", &giterr_last, allow_raw_pointers());
   function("git_transport_register", &git_transport_register, allow_raw_pointers());
   
-  //value_object<git_transport>("git_transport");
+  value_object<git_transport>("git_transport")
+    .field("version", &git_transport::version);
 }
