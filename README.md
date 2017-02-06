@@ -15,6 +15,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
 - [x] port libgit2.js build scripts, build libgit2
 - [ ] embind git_transport
   - https://github.com/kripken/emscripten/blob/master/tests/embind/embind_test.cpp#L1708
+  - https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-call-function-pointers-from-c
 - [ ] plug in a null transport
   - https://github.com/libgit2/libgit2/blob/master/tests/transport/register.c
 - [ ] implement in JavaScript libgit2 transport github:// using AJAX requests to GitHub API
