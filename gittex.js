@@ -1,6 +1,6 @@
-git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number'])
-git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', [])
-git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number'])
+git_clone = libgit2.git_clone;//Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number'])
+git_libgit2_init = libgit2.git_libgit2_init;//Module.cwrap('git_libgit2_init', 'number', [])
+git_transport_register = libgit2.git_transport_register;//Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number'])
 NULL = 0;
 
 function github_api_transport_cb(out, owner, param) //git_transport_cb
