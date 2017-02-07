@@ -8,31 +8,50 @@ git_transport_register = Module.cwrap('git_transport_register', 'number', ['stri
 //git_libgit2_init = libgit2.git_libgit2_init;
 //git_transport_register = libgit2.git_transport_register;
 
-function make_emscripten_integer_array(arr)
+function make_emscripten_integer_array(array)
 {
+	var unsafe_memory = Module._malloc(Runtime.getNativeFieldSize('i32') * array.length);
+	//Module.HEAP32.set(array, unsafe_memory);
+	for(var i = 0; i < array.length; i++)
+		Module.setValue(unsafe_memory + i * Runtime.getNativeFieldSize('i32'), array[i], 'i32');
+	return unsafe_memory;
 }
 
 function github_api_transport_cb(out, owner, param) //git_transport_cb
 {
-	out = {
-		connect : function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { transport.connected = 1; transport.flags = flags; return 0; },
-		ls : function(out, size, transport) { },
-		push : function(transport, push, callbacks) { },
-		negotiate_fetch : function(transport, repo, refs, count) { },
-		download_pack : function(transport, repo, stats, progress_cb, progress_payload) { },
+	var transport = {
+		ls : function(out, size, transport) { console.log('transport.ls', 'nop'); return 0; },
+		negotiate_fetch : function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  },
+		download_pack : function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; },
 		
-		set_custom_headers : function(transport, custom_headers) { console.log('transport.set_custom_headers'); transport.custom_headers = custom_headers; return 0; }, // convert from git_strarray* to UTF16
+		connect : function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { console.log('transport.connect', 'nop'); transport.connected = 1; transport.flags = flags; transport.url = Module.UTF8ToString(url); return 0; },
 		read_flags : function(transport, flags) { console.log('transport.read_flags'); flags = transport.flags; return 0; }, // write to int* flags the value
-		
-		set_callbacks : function(transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; },
 		is_connected : function(transport) { console.log('transport.is_connected'); return transport.connected; },
+		push : function(transport, push, callbacks) { console.log('transport.push', 'nop'); return 1; },
+		set_callbacks : function(transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; },
+		set_custom_headers : function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }, // convert custom_headers from git_strarray* to UTF16
 		cancel : function(transport) { console.log('transport.cancel', 'nop'); return 0; },
 		close : function(transport) { console.log('transport.close'); transport.connected = 0; return 0; },
 		free : function(transport) { console.log('transport.free', 'nop'); return 0; }
 		
 		version : 1,
 		connected : 0,
-	}
+	};
+	Module.setValue(out, make_emscripten_integer_array([
+		transport.version, 
+		Runtime.addFunction(transport.set_callbacks), 
+		Runtime.addFunction(transport.set_custom_headers), 
+		Runtime.addFunction(transport.connect), 
+		Runtime.addFunction(transport.ls), 
+		Runtime.addFunction(transport.push), 
+		Runtime.addFunction(transport.negotiate_fetch), 
+		Runtime.addFunction(transport.download_pack), 
+		Runtime.addFunction(transport.is_connected), 
+		Runtime.addFunction(transport.read_flags), 
+		Runtime.addFunction(transport.cancel), 
+		Runtime.addFunction(transport.close), 
+		Runtime.addFunction(transport.free)
+	]), 'i32');
 }
 
 function libgit2_init()
