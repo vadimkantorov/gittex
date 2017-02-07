@@ -32,7 +32,7 @@ function github_api_transport_cb(out, owner, param) //git_transport_cb
 		set_custom_headers : function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }, // convert custom_headers from git_strarray* to UTF16
 		cancel : function(transport) { console.log('transport.cancel', 'nop'); return 0; },
 		close : function(transport) { console.log('transport.close'); transport.connected = 0; return 0; },
-		free : function(transport) { console.log('transport.free', 'nop'); return 0; }
+		free : function(transport) { console.log('transport.free', 'nop'); }
 		
 		version : 1,
 		connected : 0,
