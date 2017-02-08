@@ -1,8 +1,10 @@
 [ -d libgit2 ] || git clone https://github.com/libgit2/libgit2
 
 cd libgit2
-#[ -d build ] && rm -rf build
+[ -d build ] && rm -rf build
 mkdir -p build && cd build
+
+export MAKEFLAGS=8
 
 cat <<EOF > mytest.c
 	#include <stdio.h>
@@ -19,10 +21,10 @@ EOF
 
 function build_test_emscripten
 {
-	#cmake .. -DCMAKE_SIZEOF_VOID_P=4 -DCMAKE_C_COMPILER="${EMSCRIPTEN_ROOT_PATH}/emcc" -DCMAKE_AR="${EMSCRIPTEN_ROOT_PATH}/emar" -DCMAKE_RANLIB="${EMSCRIPTEN_ROOT_PATH}/emranlib" -DCMAKE_C_FLAGS=$'-s SOCKET_DEBUG=1 -s EXPORTED_FUNCTIONS="[\'_git_clone\', \'_git_libgit2_init\',\'giterr_last\',\'git_transport_register\']" -O2' -DBUILD_CLAR=OFF -DUSE_SSH=OFF -DCURL=OFF -DUSE_OPENSSL=OFF
-	#MAKEFLAGS=8 cmake --build .
-	#"${EMSCRIPTEN_ROOT_PATH}/emcc" -s EXPORTED_FUNCTIONS="['_git_clone','_git_libgit2_init','_giterr_last','git_transport_register']" -O2 -s LINKABLE=1 -o ../../libgit2.js libgit2.so -s SOCKET_DEBUG=1
-	"${EMSCRIPTEN_ROOT_PATH}/emcc" --bind ../../emscripten/libgit2bind.cpp -O2 -I../include -s LINKABLE=1 -o ../../libgit2.js libgit2.so
+	cmake .. -DCMAKE_SIZEOF_VOID_P=4 -DCMAKE_C_COMPILER="${EMSCRIPTEN_ROOT_PATH}/emcc" -DCMAKE_AR="${EMSCRIPTEN_ROOT_PATH}/emar" -DCMAKE_RANLIB="${EMSCRIPTEN_ROOT_PATH}/emranlib" -DCMAKE_C_FLAGS=$'-s SOCKET_DEBUG=1 -s EXPORTED_FUNCTIONS="[\'_git_clone\', \'_git_libgit2_init\',\'giterr_last\',\'git_transport_register\']" -O2' -DBUILD_CLAR=OFF -DUSE_SSH=OFF -DCURL=OFF -DUSE_OPENSSL=OFF
+	cmake --build .
+	"${EMSCRIPTEN_ROOT_PATH}/emcc" -s EXPORTED_FUNCTIONS="['_git_clone','_git_libgit2_init','_giterr_last','git_transport_register']" -O2 -s LINKABLE=1 -o ../../libgit2.js libgit2.so -s SOCKET_DEBUG=1
+	#"${EMSCRIPTEN_ROOT_PATH}/emcc" --bind ../../emscripten/libgit2bind.cpp -O2 -I../include -s LINKABLE=1 -o ../../libgit2.js libgit2.so
 	#"${EMSCRIPTEN_ROOT_PATH}/emcc" -o mytest.js mytest.c -I../include libgit2.so -s SOCKET_DEBUG=1
 	#nodejs ./mytest.js
 }
@@ -30,7 +32,7 @@ function build_test_emscripten
 function build_test_native
 {
 	cmake .. -DCMAKE_C_FLAGS=$'-O2' -DBUILD_CLAR=OFF -DUSE_SSH=OFF -DCURL=OFF -DUSE_OPENSSL=OFF
-	MAKEFLAGS=8 cmake --build .
+	cmake --build .
 	gcc -o mytest mytest.c -I../include -lgit2
 	./mytest
 }
