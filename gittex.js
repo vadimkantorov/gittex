@@ -20,19 +20,19 @@ function make_emscripten_integer_array(array)
 function github_api_transport_cb(out, owner, param) //git_transport_cb
 {
 	var transport = {
-		ls : function(out, size, transport) { console.log('transport.ls', 'nop'); return 0; },
-		negotiate_fetch : function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  },
-		download_pack : function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; },
+		ls : function(out, size, _transport) { console.log('transport.ls', 'nop'); return 0; },
+		negotiate_fetch : function(_transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  },
+		download_pack : function(_transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; },
 		
-		connect : function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { console.log('transport.connect', 'nop'); transport.connected = 1; transport.flags = flags; transport.url = Module.UTF8ToString(url); return 0; },
-		read_flags : function(transport, flags) { console.log('transport.read_flags'); flags = transport.flags; return 0; }, // write to int* flags the value
-		is_connected : function(transport) { console.log('transport.is_connected'); return transport.connected; },
-		push : function(transport, push, callbacks) { console.log('transport.push', 'nop'); return 1; },
-		set_callbacks : function(transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; },
-		set_custom_headers : function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }, // convert custom_headers from git_strarray* to UTF16
-		cancel : function(transport) { console.log('transport.cancel', 'nop'); return 0; },
-		close : function(transport) { console.log('transport.close'); transport.connected = 0; return 0; },
-		free : function(transport) { console.log('transport.free', 'nop'); }
+		connect : function(_transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { console.log('transport.connect', 'nop'); transport.connected = 1; transport.flags = flags; transport.url = Module.UTF8ToString(url); return 0; },
+		read_flags : function(_transport, flags) { console.log('transport.read_flags'); flags = transport.flags; return 0; }, // write to int* flags the value
+		is_connected : function(_transport) { console.log('transport.is_connected'); return transport.connected; },
+		push : function(_transport, push, callbacks) { console.log('transport.push', 'nop'); return 1; },
+		set_callbacks : function(_transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; },
+		set_custom_headers : function(_transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }, // convert custom_headers from git_strarray* to UTF16
+		cancel : function(_transport) { console.log('transport.cancel', 'nop'); return 0; },
+		close : function(_transport) { console.log('transport.close'); transport.connected = 0; return 0; },
+		free : function(_transport) { console.log('transport.free', 'nop'); }
 		
 		version : 1,
 		connected : 0,
