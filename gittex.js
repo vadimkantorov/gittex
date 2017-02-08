@@ -8,7 +8,7 @@ git_transport_register = Module.cwrap('git_transport_register', 'number', ['stri
 //git_libgit2_init = libgit2.git_libgit2_init;
 //git_transport_register = libgit2.git_transport_register;
 
-function make_emscripten_integer_array(array)
+function struct_pack_i32(array)
 {
 	var unsafe_memory = Module._malloc(Runtime.getNativeFieldSize('i32') * array.length);
 	//Module.HEAP32.set(array, unsafe_memory);
@@ -37,7 +37,7 @@ function github_api_transport_cb(out, owner, param) //git_transport_cb
 		version : 1,
 		connected : 0,
 	};
-	Module.setValue(out, make_emscripten_integer_array([
+	Module.setValue(out, struct_pack_i32([
 		transport.version, 
 		Runtime.addFunction(transport.set_callbacks), 
 		Runtime.addFunction(transport.set_custom_headers), 
