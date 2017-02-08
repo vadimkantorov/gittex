@@ -8,6 +8,23 @@ git_transport_register = Module.cwrap('git_transport_register', 'number', ['stri
 //git_libgit2_init = libgit2.git_libgit2_init;
 //git_transport_register = libgit2.git_transport_register;
 
+var github_git_transport = {
+	ls			: Runtime.addFunction(function(out, size, transport) { console.log('transport.ls', 'nop'); return 0; }),
+	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  }),
+	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; }),
+	connect			: Runtime.addFunction(function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { console.log('transport.connect', 'nop'); transport.connected = 1; transport.flags = flags; transport.url = Module.UTF8ToString(url); return 0; }),
+	read_flags		: Runtime.addFunction(function(transport, flags) { console.log('transport.read_flags'); flags = github_git_transport.flags; return 0; }), // write to int* flags the value
+	is_connected		: Runtime.addFunction(function(transport) { console.log('transport.is_connected'); return github_git_transport.connected; }),
+	push			: Runtime.addFunction(function(transport, push, callbacks) { console.log('transport.push', 'nop'); return 1; }),
+	set_callbacks		: Runtime.addFunction(function(transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; }),
+	set_custom_headers	: Runtime.addFunction(function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }), // convert custom_headers from git_strarray* to UTF16
+	cancel			: Runtime.addFunction(function(transport) { console.log('transport.cancel', 'nop'); return 0; }),
+	close			: Runtime.addFunction(function(transport) { console.log('transport.close'); github_git_transport.connected = 0; return 0; }),
+	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); })
+	version : 1,
+	connected : 0,
+};
+
 function struct_pack_i32(array)
 {
 	var unsafe_memory = Module._malloc(Runtime.getNativeFieldSize('i32') * array.length);
@@ -17,56 +34,21 @@ function struct_pack_i32(array)
 	return unsafe_memory;
 }
 
-function github_api_transport_cb(out, owner, param) //git_transport_cb
+function github_transport_cb(out, owner, param) //git_transport_cb
 {
-	var transport = {
-		ls : function(out, size, _transport) { console.log('transport.ls', 'nop'); return 0; },
-		negotiate_fetch : function(_transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  },
-		download_pack : function(_transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; },
-		
-		connect : function(_transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { console.log('transport.connect', 'nop'); transport.connected = 1; transport.flags = flags; transport.url = Module.UTF8ToString(url); return 0; },
-		read_flags : function(_transport, flags) { console.log('transport.read_flags'); flags = transport.flags; return 0; }, // write to int* flags the value
-		is_connected : function(_transport) { console.log('transport.is_connected'); return transport.connected; },
-		push : function(_transport, push, callbacks) { console.log('transport.push', 'nop'); return 1; },
-		set_callbacks : function(_transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; },
-		set_custom_headers : function(_transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }, // convert custom_headers from git_strarray* to UTF16
-		cancel : function(_transport) { console.log('transport.cancel', 'nop'); return 0; },
-		close : function(_transport) { console.log('transport.close'); transport.connected = 0; return 0; },
-		free : function(_transport) { console.log('transport.free', 'nop'); }
-		
-		version : 1,
-		connected : 0,
-	};
-	Module.setValue(out, struct_pack_i32([
-		transport.version, 
-		Runtime.addFunction(transport.set_callbacks), 
-		Runtime.addFunction(transport.set_custom_headers), 
-		Runtime.addFunction(transport.connect), 
-		Runtime.addFunction(transport.ls), 
-		Runtime.addFunction(transport.push), 
-		Runtime.addFunction(transport.negotiate_fetch), 
-		Runtime.addFunction(transport.download_pack), 
-		Runtime.addFunction(transport.is_connected), 
-		Runtime.addFunction(transport.read_flags), 
-		Runtime.addFunction(transport.cancel), 
-		Runtime.addFunction(transport.close), 
-		Runtime.addFunction(transport.free)
-	]), 'i32');
+	Module.setValue(out, struct_pack_i32([github_git_transport.version, github_git_transport.set_callbacks, github_git_transport.set_custom_headers, github_git_transport.connect, github_git_transport.ls, github_git_transport.push, github_git_transport.negotiate_fetch, github_git_transport.download_pack, github_git_transport.is_connected, github_git_transport.read_flags, github_git_transport.cancel, github_git_transport.close, github_git_transport.free]), 'i32');
 }
 
-function libgit2_init()
+function gittex_test()
 {
 	console.log('init: ', git_libgit2_init());
-	console.log('register: ', git_transport_register('github://', Runtime.addFunction(github_api_transport_cb), NULL));
+	console.log('register: ', git_transport_register('github://', Runtime.addFunction(github_transport_cb), NULL));
+	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/gittex.git', 'gittex', 0));
 }
 
 function gittex_eval(command)
 {
-	//var repo = Module._malloc(4);
-	//Module.setValue(repo, 0, 'i32')
-	//console.log('clone:', git_clone(repo, 'github://github.com/vadimkantorov/gittex.git', 'gittex', 0));
-	//Module._free(repo);
 	return "Command was: " + command;
 }
 
-libgit2_init();
+gittex_test();
