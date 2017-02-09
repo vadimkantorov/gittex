@@ -41,12 +41,12 @@ var github_git_transport = {
 	cancel			: Runtime.addFunction(function(transport) { console.log('transport.cancel', 'nop'); return 0; }),
 	close			: Runtime.addFunction(function(transport) { console.log('transport.close'); github_git_transport.connected = 0; return 0; }),
 	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); }),
-	version : 1,
-	connected : 0,
-	flags : 0,
-	direction : 0,
-	refs : [],
-	have_refs : 0
+	version :		: 1,
+	connected		: 0,
+	flags			: 0,
+	direction		: 0,
+	refs			: [],
+	have_refs		: 0
 };
 
 function git_transport_cb(out, owner, param)
