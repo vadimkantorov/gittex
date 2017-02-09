@@ -55,7 +55,7 @@ var github_git_transport = {
 			Module.setValue(unsafe_memory + i * Runtime.getNativeFieldSize('i32'), array[i], 'i32');
 		return unsafe_memory;
 	},
-    	git_transport_cb :  Runtime.addFunction(function(out, owner, param)
+    	git_transport_cb	:  Runtime.addFunction(function(out, owner, param)
 	{
 		console.log('git_transport_cb');
 		Module.setValue(out, github_git_transport.struct_pack_i32([github_git_transport.version, github_git_transport.set_callbacks, github_git_transport.set_custom_headers, github_git_transport.connect, github_git_transport.ls, github_git_transport.push, github_git_transport.negotiate_fetch, github_git_transport.download_pack, github_git_transport.is_connected, github_git_transport.read_flags, github_git_transport.cancel, github_git_transport.close, github_git_transport.free]), 'i32');
