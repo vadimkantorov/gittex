@@ -1,5 +1,5 @@
+// TODO: Free the mallocs!
 NULL = 0;
-
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number']);
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
@@ -16,18 +16,19 @@ var github_git_transport = {
 		for(var i = 0; i < github_git_transport.refs.length; i++)
 		{
 			var name_bytes = Module.lengthBytesUTF8(github_git_transport.refs[i].ref);
-			var name = Module._malloc(name_bytes);
-			Module.stringToUTF8(github_git_transport.refs[i].ref, name, name_bytes);
 			var git_remote_head = {
 				local : 0,
-				oid : '',
-				loid : '',
-				name : name,
+				oid : [0, 0, 0, 0, 0],
+				loid : [0, 0, 0, 0, 0],
+				name : Module._malloc(name_bytes),
 				symref_target : NULL
 			};
-			git_remote_heads.append(struct_pack_i32([git_remote_head.local].concat(github_git_transport.stringToIntArray(git_remote_head.oid)).concat(github_git_transport.stringToIntArray(git_remote_head.loid)).concat([git_remote_head.name, git_remote_head.symref_target])));
+			Module.stringToUTF8(github_git_transport.refs[i].ref, git_remote_head.name, name_bytes);
+			for(var j = 0; j < git_remote_head.oid.length; j++)
+				git_remote_head.oid[j] = parseInt(github_git_transport.refs[i].object.sha.substring(j * 10, (j + 1) * 10), 16);
+			git_remote_heads.append(struct_pack_i32([git_remote_head.local].concat(git_remote_head.oid).concat(git_remote_head.loid).concat([git_remote_head.name, git_remote_head.symref_target])));
 		}
-		Module.setValue(out, github_git_transport.struct_pack_i32(git_remote_heads), 'i32'); //free on the next call
+		Module.setValue(out, github_git_transport.struct_pack_i32(git_remote_heads), 'i32');
 		Module.setValue(size, git_remote_heads.length, 'i32');
 		return 0; 
 	}),
