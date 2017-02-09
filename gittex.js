@@ -9,7 +9,15 @@ git_transport_register = Module.cwrap('git_transport_register', 'number', ['stri
 //git_transport_register = libgit2.git_transport_register;
 
 var github_git_transport = {
-	ls			: Runtime.addFunction(function(out, size, transport) { console.log('transport.ls', 'nop'); return 0; }),
+	ls			: Runtime.addFunction(function(out, size, transport) {
+					console.log('transport.ls', 'nop');
+					if (!github_git_transport.have_refs) {
+						console.log('transport.ls', "the transport has not yet loaded the refs");
+						return -1;
+					}
+					Module.setValue(size, 0, 'i32');
+					return 0; 
+	}),
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  }),
 	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; }),
 	connect			: Runtime.addFunction(function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags) { console.log('transport.connect', 'nop'); github_git_transport.connected = 1; github_git_transport.flags = flags; github_git_transport.direction = direction; github_git_transport.url = Module.UTF8ToString(url); return 0; }),
@@ -21,10 +29,12 @@ var github_git_transport = {
 	cancel			: Runtime.addFunction(function(transport) { console.log('transport.cancel', 'nop'); return 0; }),
 	close			: Runtime.addFunction(function(transport) { console.log('transport.close'); github_git_transport.connected = 0; return 0; }),
 	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); }),
-	flags : 0,
-	direction : 0,
 	version : 1,
 	connected : 0,
+	flags : 0,
+	direction : 0,
+	refs : [],
+	have_refs : false
 };
 
 function git_transport_cb(out, owner, param)
