@@ -20,7 +20,7 @@ var github_git_transport = {
 	set_custom_headers	: Runtime.addFunction(function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }), // convert custom_headers from git_strarray* to UTF16
 	cancel			: Runtime.addFunction(function(transport) { console.log('transport.cancel', 'nop'); return 0; }),
 	close			: Runtime.addFunction(function(transport) { console.log('transport.close'); github_git_transport.connected = 0; return 0; }),
-	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); })
+	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); }),
 	version : 1,
 	connected : 0,
 };
@@ -39,10 +39,10 @@ function git_transport_cb(out, owner, param)
 	Module.setValue(out, struct_pack_i32([github_git_transport.version, github_git_transport.set_callbacks, github_git_transport.set_custom_headers, github_git_transport.connect, github_git_transport.ls, github_git_transport.push, github_git_transport.negotiate_fetch, github_git_transport.download_pack, github_git_transport.is_connected, github_git_transport.read_flags, github_git_transport.cancel, github_git_transport.close, github_git_transport.free]), 'i32');
 }
 
-function gittex_test()
+Module['_main'] = function()
 {
 	console.log('init: ', git_libgit2_init());
-	console.log('register: ', git_transport_register('github://', Runtime.addFunction(git_transport_cb), NULL));
+	console.log('register: ', git_transport_register('github', Runtime.addFunction(git_transport_cb), NULL));
 	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/gittex.git', 'gittex', 0));
 }
 
