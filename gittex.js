@@ -12,8 +12,23 @@ var github_git_transport = {
 			console.log('transport.ls', "the transport has not yet loaded the refs");
 			return -1;
 		}
-		Module.setValue(out, github_git_transport.struct_pack_i32(github_git_transport.refs), 'i32');
-		Module.setValue(size, github_git_transport.refs.length, 'i32');
+		var git_remote_heads = [];
+		for(var i = 0; i < github_git_transport.refs.length; i++)
+		{
+			var name_bytes = Module.lengthBytesUTF8(github_git_transport.refs[i].ref);
+			var name = Module._malloc(name_bytes);
+			Module.stringToUTF8(github_git_transport.refs[i].ref, name, name_bytes);
+			var git_remote_head = {
+				local : 0,
+				oid : '',
+				loid : '',
+				name : name,
+				symref_target : NULL
+			};
+			git_remote_heads.append(struct_pack_i32([git_remote_head.local].concat(github_git_transport.stringToIntArray(git_remote_head.oid)).concat(github_git_transport.stringToIntArray(git_remote_head.loid)).concat([git_remote_head.name, git_remote_head.symref_target])));
+		}
+		Module.setValue(out, github_git_transport.struct_pack_i32(git_remote_heads), 'i32'); //free on the next call
+		Module.setValue(size, git_remote_heads.length, 'i32');
 		return 0; 
 	}),
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  }),
@@ -28,8 +43,19 @@ var github_git_transport = {
 		console.log('transport.connect', github_git_transport.url);
 		
 		// https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
+		var heads = [
+		{
+		    "ref": "refs/heads/master",
+		    "url": "https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads/master",
+		    "object": {
+		      "sha": "822cbba0fe905e49c0cc1e0cd6bbb7f921d34bbc",
+		      "type": "commit",
+		      "url": "https://api.github.com/repos/vadimkantorov/gittex/git/commits/822cbba0fe905e49c0cc1e0cd6bbb7f921d34bbc"
+		    }
+		  }
+		];
 		// https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L95
-		// github_git_transport.refs = []
+		github_git_transport.refs = heads;
 		github_git_transport.have_refs = 1;
 		return 0; 
 	}),
