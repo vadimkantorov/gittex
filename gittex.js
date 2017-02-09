@@ -4,10 +4,6 @@ git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', '
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
 
-//git_clone = libgit2.git_clone;
-//git_libgit2_init = libgit2.git_libgit2_init;
-//git_transport_register = libgit2.git_transport_register;
-
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
 	{
@@ -16,8 +12,8 @@ var github_git_transport = {
 			console.log('transport.ls', "the transport has not yet loaded the refs");
 			return -1;
 		}
-		//add https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads/master info to refs
-		Module.setValue(size, 1, 'i32');
+		Module.setValue(out, github_git_transport.struct_pack_i32(github_git_transport.refs), 'i32');
+		Module.setValue(size, github_git_transport.refs.length, 'i32');
 		return 0; 
 	}),
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  }),
@@ -30,6 +26,10 @@ var github_git_transport = {
 		github_git_transport.direction = direction;
 		github_git_transport.url = Module.UTF8ToString(url);
 		console.log('transport.connect', github_git_transport.url);
+		
+		// https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
+		// https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L95
+		// github_git_transport.refs = []
 		github_git_transport.have_refs = 1;
 		return 0; 
 	}),
@@ -43,30 +43,29 @@ var github_git_transport = {
 	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); }),
 	version :		: 1,
 	connected		: 0,
+	
 	flags			: 0,
 	direction		: 0,
 	refs			: [],
-	have_refs		: 0
-};
-
-function git_transport_cb(out, owner, param)
-{
-	console.log('git_transport_cb');
-	var struct_pack_i32 = function(array)
+	have_refs		: 0,
+	struct_pack_i32 	: function(array)
 	{
 		var unsafe_memory = Module._malloc(Runtime.getNativeFieldSize('i32') * array.length);
-		//Module.HEAP32.set(array, unsafe_memory);
 		for(var i = 0; i < array.length; i++)
 			Module.setValue(unsafe_memory + i * Runtime.getNativeFieldSize('i32'), array[i], 'i32');
 		return unsafe_memory;
-	};
-	Module.setValue(out, struct_pack_i32([github_git_transport.version, github_git_transport.set_callbacks, github_git_transport.set_custom_headers, github_git_transport.connect, github_git_transport.ls, github_git_transport.push, github_git_transport.negotiate_fetch, github_git_transport.download_pack, github_git_transport.is_connected, github_git_transport.read_flags, github_git_transport.cancel, github_git_transport.close, github_git_transport.free]), 'i32');
-}
+	},
+    	git_transport_cb :  Runtime.addFunction(function(out, owner, param)
+	{
+		console.log('git_transport_cb');
+		Module.setValue(out, github_git_transport.struct_pack_i32([github_git_transport.version, github_git_transport.set_callbacks, github_git_transport.set_custom_headers, github_git_transport.connect, github_git_transport.ls, github_git_transport.push, github_git_transport.negotiate_fetch, github_git_transport.download_pack, github_git_transport.is_connected, github_git_transport.read_flags, github_git_transport.cancel, github_git_transport.close, github_git_transport.free]), 'i32');
+	})
+};
 
 Module['_main'] = function()
 {
 	console.log('init: ', git_libgit2_init());
-	console.log('register: ', git_transport_register('github', Runtime.addFunction(git_transport_cb), NULL));
+	console.log('register: ', git_transport_register('github', github_git_transport.git_transport_cb), NULL));
 	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/gittex.git', 'gittex', 0));
 }
 
@@ -74,5 +73,3 @@ function gittex_eval(command)
 {
 	return "Command was: " + command;
 }
-
-gittex_test();
