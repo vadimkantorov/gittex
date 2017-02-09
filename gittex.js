@@ -11,13 +11,14 @@ git_transport_register = Module.cwrap('git_transport_register', 'number', ['stri
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
 	{
-					console.log('transport.ls', 'nop');
-					if (!github_git_transport.have_refs) {
-						console.log('transport.ls', "the transport has not yet loaded the refs");
-						return -1;
-					}
-					Module.setValue(size, 0, 'i32');
-					return 0; 
+		console.log('transport.ls', 'nop');
+		if (!github_git_transport.have_refs) {
+			console.log('transport.ls', "the transport has not yet loaded the refs");
+			return -1;
+		}
+		//add https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads/master info to refs
+		Module.setValue(size, 1, 'i32');
+		return 0; 
 	}),
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  }),
 	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; }),
