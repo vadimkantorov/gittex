@@ -25,7 +25,7 @@ var github_git_transport = {
 			};
 			Module.stringToUTF8(github_git_transport.refs[i].ref, git_remote_head.name, name_bytes);
 			for(var j = 0; j < git_remote_head.oid.length; j++)
-				git_remote_head.oid[j] = parseInt(github_git_transport.refs[i].object.sha.substring(j * 10, (j + 1) * 10), 16);
+				git_remote_head.oid[j] = parseInt(github_git_transport.refs[i].object.sha.substring(j * 8, (j + 1) * 8), 16);
 			git_remote_heads.append(struct_pack_i32([git_remote_head.local].concat(git_remote_head.oid).concat(git_remote_head.loid).concat([git_remote_head.name, git_remote_head.symref_target])));
 		}
 		Module.setValue(out, github_git_transport.struct_pack_i32(git_remote_heads), 'i32');
