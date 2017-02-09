@@ -27,6 +27,7 @@ var github_git_transport = {
 
 function git_transport_cb(out, owner, param)
 {
+	console.log('git_transport_cb');
 	var struct_pack_i32 = function(array)
 	{
 		var unsafe_memory = Module._malloc(Runtime.getNativeFieldSize('i32') * array.length);
