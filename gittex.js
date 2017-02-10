@@ -3,6 +3,7 @@ NULL = 0;
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number']);
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
+git_revparse_single = Module.cwrap('git_revparse_single', 'number', ['number', 'number', 'string']);
 
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
@@ -18,10 +19,12 @@ var github_git_transport = {
 	}),
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count)
 	{
-		console.log('transport.negotiate_fetch', 'nop');
-		//git_vector_foreach(&t->refs, i, rhead){
-		//if(!git_revparse_single(git_object &obj, repo, rhead->name))
-		//	git_oid_cpy(&rhead->loid, git_object_id(obj));}
+		console.log('transport.negotiate_fetch');
+		for(var i = 0; i < github_git_transport.refs.length; i++)
+		{
+			//if(!git_revparse_single(git_object &obj, repo, rhead->name))
+			//	git_oid_cpy(&rhead->loid, git_object_id(obj));}
+		}
 			
 		return 0;
 	}),
@@ -74,7 +77,7 @@ var github_git_transport = {
 	set_custom_headers	: Runtime.addFunction(function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }), // convert custom_headers from git_strarray* to UTF16
 	cancel			: Runtime.addFunction(function(transport) { console.log('transport.cancel', 'nop'); return 0; }),
 	close			: Runtime.addFunction(function(transport) { console.log('transport.close'); github_git_transport.connected = 0; return 0; }),
-	free			: Runtime.addFunction(function(transport) { console.log('transport.free', 'nop'); }),
+	free			: Runtime.addFunction(function(transport) { console.log('transport.free'); github_git_transport.close(transport); }),
 	version :		: 1,
 	connected		: 0,
 	
