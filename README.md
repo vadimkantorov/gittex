@@ -20,7 +20,6 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
   - http://stackoverflow.com/questions/17883799/how-to-handle-passing-returning-array-pointers-to-emscripten-compiled-code
 - [x] plug in a null transport
   - https://github.com/libgit2/libgit2/blob/master/tests/transport/register.c
-- [ ] implement in JavaScript libgit2 transport github:// using AJAX requests to GitHub API
 - [ ] git clone
   - https://github.com/kripken/emscripten/issues/4902
   - https://github.com/libgit2/libgit2/blob/master/src/socket_stream.c
