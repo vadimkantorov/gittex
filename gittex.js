@@ -4,6 +4,7 @@ git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', '
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
 git_revparse_single = Module.cwrap('git_revparse_single', 'number', ['number', 'number', 'string']);
+git_object_id = Module.cwrap('git_object_id', 'number', ['number']);
 
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
@@ -20,10 +21,11 @@ var github_git_transport = {
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count)
 	{
 		console.log('transport.negotiate_fetch');
+		var git_object = Module._malloc(4);
 		for(var i = 0; i < github_git_transport.refs.length; i++)
 		{
-			//if(!git_revparse_single(git_object &obj, repo, rhead->name))
-			//	git_oid_cpy(&rhead->loid, git_object_id(obj));}
+			if(!git_revparse_single(git_object, repo, github_git_transport.refs[i].name))
+				github_git_transport.refs[i].loid = git_object_id(obj);
 		}
 			
 		return 0;
