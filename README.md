@@ -22,6 +22,7 @@ A repo for building a git-savvy LaTeX editor running in browser. Workflow:
   - https://github.com/libgit2/libgit2/blob/master/tests/transport/register.c
 - [ ] git clone
   - https://github.com/SamyPesse/gitkit-js/blob/277a149659ce5caa44db4da52ffca7332f31316a/lib/transport/http.js
+  - http://www.interfaceware.com/ftp/oss/git/v2.0.0/Documentation/technical/http-protocol.txt
   - https://github.com/kripken/emscripten/issues/4902
   - https://github.com/libgit2/libgit2/blob/master/src/socket_stream.c
   - https://github.com/libgit2/libgit2/blob/master/src/transports/local.c
