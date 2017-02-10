@@ -21,9 +21,9 @@ EOF
 
 function build_test_emscripten
 {
-	cmake .. -DCMAKE_SIZEOF_VOID_P=4 -DCMAKE_C_COMPILER="${EMSCRIPTEN_ROOT_PATH}/emcc" -DCMAKE_AR="${EMSCRIPTEN_ROOT_PATH}/emar" -DCMAKE_RANLIB="${EMSCRIPTEN_ROOT_PATH}/emranlib" -DCMAKE_C_FLAGS=$'-s ASSERTIONS=1 -s SOCKET_DEBUG=1 -s RESERVED_FUNCTION_POINTERS=30 -s EXPORTED_FUNCTIONS="[\'_git_clone\', \'_git_libgit2_init\',\'_giterr_last\',\'_git_transport_register\']" -O2' -DBUILD_CLAR=OFF -DUSE_SSH=OFF -DCURL=OFF -DUSE_OPENSSL=OFF
+	cmake .. -DCMAKE_SIZEOF_VOID_P=4 -DCMAKE_C_COMPILER="${EMSCRIPTEN_ROOT_PATH}/emcc" -DCMAKE_AR="${EMSCRIPTEN_ROOT_PATH}/emar" -DCMAKE_RANLIB="${EMSCRIPTEN_ROOT_PATH}/emranlib" -DCMAKE_C_FLAGS=$'-s ASSERTIONS=1 -s SOCKET_DEBUG=1 -s RESERVED_FUNCTION_POINTERS=30 -s EXPORTED_FUNCTIONS="[\'_git_clone\', \'_git_libgit2_init\',\'_giterr_last\',\'_git_transport_register\',\'_git_revparse_single\']" -O2' -DBUILD_CLAR=OFF -DUSE_SSH=OFF -DCURL=OFF -DUSE_OPENSSL=OFF
 	cmake --build .
-	"${EMSCRIPTEN_ROOT_PATH}/emcc" -s RESERVED_FUNCTION_POINTERS=30 -s ASSERTIONS=1 -s EXPORTED_FUNCTIONS="['_git_clone','_git_libgit2_init','_giterr_last','_git_transport_register']" -O2 -s LINKABLE=1 -o ../../libgit2.js libgit2.so -s SOCKET_DEBUG=1
+	"${EMSCRIPTEN_ROOT_PATH}/emcc" -s RESERVED_FUNCTION_POINTERS=30 -s ASSERTIONS=1 -s EXPORTED_FUNCTIONS="['_git_clone','_git_libgit2_init','_giterr_last','_git_transport_register','_git_revparse_single']" -O2 -s LINKABLE=1 -o ../../libgit2.js libgit2.so -s SOCKET_DEBUG=1
 	#"${EMSCRIPTEN_ROOT_PATH}/emcc" --bind ../../emscripten/libgit2bind.cpp -O2 -I../include -s LINKABLE=1 -o ../../libgit2.js libgit2.so
 	#"${EMSCRIPTEN_ROOT_PATH}/emcc" -o mytest.js mytest.c -I../include libgit2.so -s SOCKET_DEBUG=1
 	#nodejs ./mytest.js
