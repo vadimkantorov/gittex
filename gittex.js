@@ -7,7 +7,7 @@ git_transport_register = Module.cwrap('git_transport_register', 'number', ['stri
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
 	{
-		console.log('transport.ls', 'nop');
+		console.log('transport.ls');
 		if (!github_git_transport.have_refs) {
 			console.log('transport.ls', "the transport has not yet loaded the refs");
 			return -1;
@@ -16,7 +16,15 @@ var github_git_transport = {
 		Module.setValue(size, github_git_transport.refs.length, 'i32');
 		return 0; 
 	}),
-	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count) { console.log('transport.negotiate_fetch', 'nop'); return 0;  }),
+	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count)
+	{
+		console.log('transport.negotiate_fetch', 'nop');
+		//git_vector_foreach(&t->refs, i, rhead){
+		//if(!git_revparse_single(git_object &obj, repo, rhead->name))
+		//	git_oid_cpy(&rhead->loid, git_object_id(obj));}
+			
+		return 0;
+	}),
 	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; }),
 	connect			: Runtime.addFunction(function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags)
 	{
