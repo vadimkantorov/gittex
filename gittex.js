@@ -38,7 +38,11 @@ var github_git_transport = {
 			
 		return 0;
 	}),
-	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload) { console.log('transport.download_pack', 'nop'); return 0; }),
+	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload)
+	{
+		console.log('transport.download_pack', 'nop');
+		return 0;
+	}),
 	connect			: Runtime.addFunction(function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags)
 	{
 		console.log('transport.connect');
