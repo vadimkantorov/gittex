@@ -1,10 +1,13 @@
 // TODO: Free the mallocs!
 NULL = 0;
+GIT_ENOTFOUND = -3;
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number']);
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
-git_revparse_single = Module.cwrap('git_revparse_single', 'number', ['number', 'number', 'string']);
+git_revparse_single = Module.cwrap('git_revparse_single', 'number', ['number', 'number', 'number']);
 git_object_id = Module.cwrap('git_object_id', 'number', ['number']);
+git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
+giterr_clear = Module.cwrap('giterr_clear', null, []);
 
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
@@ -24,8 +27,13 @@ var github_git_transport = {
 		var git_object = Module._malloc(4);
 		for(var i = 0; i < github_git_transport.refs.length; i++)
 		{
-			if(!git_revparse_single(git_object, repo, github_git_transport.refs[i].name))
-				github_git_transport.refs[i].loid = git_object_id(obj);
+			var error = git_revparse_single(git_object, repo, github_git_transport.refs[i] + 4 + 20 + 20)); // refs[i].name
+			if (!error)
+				git_oid_cpy(github_git_transport.refs[i] + 4 + 20, git_object_id(git_object)); // refs[i].loid
+			else if (error != GIT_ENOTFOUND)
+				return error;
+			else
+				giterr_clear();
 		}
 			
 		return 0;
