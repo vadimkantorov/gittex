@@ -8,6 +8,8 @@ git_revparse_single = Module.cwrap('git_revparse_single', 'number', ['number', '
 git_object_id = Module.cwrap('git_object_id', 'number', ['number']);
 git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
 giterr_clear = Module.cwrap('giterr_clear', null, []);
+git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
+git_odb_write_pack = Module.cwrap('git_odb_write_pack', 'number', ['number', 'number', 'number', 'number']);
 
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
@@ -40,7 +42,23 @@ var github_git_transport = {
 	}),
 	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload)
 	{
-		console.log('transport.download_pack', 'nop');
+		console.log('transport.download_pack');
+		var pack = Module._malloc(4), writepack = Module._malloc(4), odb = Module._malloc(4);
+		
+		git_repository_odb__weakptr(odb, repo);
+		git_odb_write_pack(writepack, odb, NULL, NULL);
+		git_packbuilder_new(pack, repo);
+		
+		/*
+		https://github.com/libgit2/libgit2/blob/master/src/transports/smart_protocol.c#L538
+		https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L527
+				
+		foreach p:
+			writepack->append(writepack, p->data, p->len, stats);
+			
+		writepack->commit(writepack, stats);
+		writepack->free(writepack);
+		*/
 		return 0;
 	}),
 	connect			: Runtime.addFunction(function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags)
