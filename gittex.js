@@ -1,6 +1,11 @@
 function github_revwalk(github_repo_url, callback)
 {
-	
+	var stack = [];
+	while(stack.length > 0)
+	{
+		var ref = stack.pop();
+		callack(data, type);
+	}
 }
 
 EMPTY_OID = [0, 0, 0, 0, 0];
@@ -16,7 +21,20 @@ git_object_id = Module.cwrap('git_object_id', 'number', ['number']);
 git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
 giterr_clear = Module.cwrap('giterr_clear', null, []);
 git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
+git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
 git_odb_write_pack = Module.cwrap('git_odb_write_pack', 'number', ['number', 'number', 'number', 'number']);
+git_otype = {
+	GIT_OBJ_ANY : -2,		/**< Object can be any of the following */
+	GIT_OBJ_BAD : -1,		/**< Object is invalid. */
+	GIT_OBJ__EXT1 : 0,		/**< Reserved for future use. */
+	GIT_OBJ_COMMIT : 1,		/**< A commit object. */
+	GIT_OBJ_TREE : 2,		/**< A tree (directory listing) object. */
+	GIT_OBJ_BLOB : 3,		/**< A file revision object. */
+	GIT_OBJ_TAG : 4,		/**< An annotated tag object. */
+	GIT_OBJ__EXT2 : 5,		/**< Reserved for future use. */
+	GIT_OBJ_OFS_DELTA : 6, /**< A delta, base is given by an offset. */
+	GIT_OBJ_REF_DELTA : 7, /**< A delta, base is given by object id. */
+};
 
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
@@ -52,7 +70,10 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(EMPTY_OID);
 		git_repository_odb__weakptr(odb, repo);
-		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(data, len, type) {
+		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(data, type) {
+			var data = '';
+			var len = 0;
+			var type = git_otype.GIT_OBJ_COMMIT;
 			git_odb_write(oid, odb, data, len, type);
 		});
 		
