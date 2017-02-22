@@ -72,7 +72,7 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(EMPTY_OID());
 		git_repository_odb__weakptr(odb, repo);
-		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(blob_contents, object_type) {
+		github_revwalk(github_git_transport.url.replace('github://', ''), function(blob_contents, object_type) {
 			var data = Module._malloc(blob_contents.length);
 			Module.writeArrayToMemory(blob, data);
 			git_odb_write(oid, odb, data, blob_contents.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : git_otype.GIT_OBJ_ANY);
