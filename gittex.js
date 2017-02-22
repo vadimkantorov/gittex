@@ -54,9 +54,9 @@ var github_git_transport = {
 	negotiate_fetch		: Runtime.addFunction(function(transport, repo, refs, count)
 	{
 		console.log('transport.negotiate_fetch');
-		var git_object = Module._malloc(4);
 		for(var i = 0; i < github_git_transport.refs.length; i++)
 		{
+			var git_object = Module._malloc(4);
 			var error = git_revparse_single(git_object, repo, github_git_transport.refs[i] + 4 + 20 + 20)); // refs[i].name
 			if (!error)
 				git_oid_cpy(github_git_transport.refs[i] + 4 + 20, git_object_id(git_object)); // refs[i].loid
@@ -64,6 +64,9 @@ var github_git_transport = {
 				return error;
 			else
 				giterr_clear();
+			
+			git_object_free(git_object);
+			Module._free(git_object);
 		}
 			
 		return 0;
@@ -80,19 +83,8 @@ var github_git_transport = {
 			Module._free(data);
 		});
 		
-		/*
-		https://github.com/libgit2/libgit2/blob/master/src/transports/smart_protocol.c#L538
-		https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L527
-		var pack = Module._malloc(4), writepack = Module._malloc(4);
-		git_odb_write_pack(writepack, odb, NULL, NULL);
-		git_packbuilder_new(pack, repo);
-		
-		foreach p:
-			writepack->append(writepack, p->data, p->len, stats);
-			
-		writepack->commit(writepack, stats);
-		writepack->free(writepack);
-		*/
+		Module._free(odb);
+		Module._free(oid);
 		return 0;
 	}),
 	connect			: Runtime.addFunction(function(transport, url, cred_acquire_cb, cred_acquire_payload, proxy_opts, direction, flags)
