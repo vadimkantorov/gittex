@@ -25,6 +25,7 @@ giterr_clear = Module.cwrap('giterr_clear', null, []);
 git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
 git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
 git_odb_write_pack = Module.cwrap('git_odb_write_pack', 'number', ['number', 'number', 'number', 'number']);
+git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_otype = {
 	GIT_OBJ_ANY : -2,		/**< Object can be any of the following */
 	GIT_OBJ_BAD : -1,		/**< Object is invalid. */
