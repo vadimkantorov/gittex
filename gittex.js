@@ -4,7 +4,9 @@ function github_revwalk(github_repo_url, callback)
 	while(stack.length > 0)
 	{
 		var ref = stack.pop();
-		callack(data, type);
+		var blob_base64_decoded = null;
+		var type = "commit"; // tree, blob
+		callack(blob_base64_decoded, type);
 	}
 }
 
@@ -70,7 +72,7 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(EMPTY_OID());
 		git_repository_odb__weakptr(odb, repo);
-		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(data, type) {
+		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(blob_contents, object_type) {
 			var data = '';
 			var len = 0;
 			var type = git_otype.GIT_OBJ_COMMIT;
