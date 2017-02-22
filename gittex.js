@@ -75,8 +75,7 @@ var github_git_transport = {
 		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(blob_contents, object_type) {
 			var data = '';
 			var len = 0;
-			var type = git_otype.GIT_OBJ_COMMIT;
-			git_odb_write(oid, odb, data, len, type);
+			git_odb_write(oid, odb, data, len, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : git_otype.GIT_OBJ_ANY);
 		});
 		
 		/*
