@@ -3,6 +3,8 @@ function github_revwalk(github_repo_url, callback)
 	
 }
 
+EMPTY_OID = [0, 0, 0, 0, 0];
+
 // TODO: Free the mallocs!
 NULL = 0;
 GIT_ENOTFOUND = -3;
@@ -48,7 +50,7 @@ var github_git_transport = {
 	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload)
 	{
 		console.log('transport.download_pack');
-		var odb = Module._malloc(4), oid = Module._malloc(20);
+		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(EMPTY_OID);
 		git_repository_odb__weakptr(odb, repo);
 		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(data, len, type) {
 			git_odb_write(oid, odb, data, len, type);
@@ -97,8 +99,8 @@ var github_git_transport = {
 			var name_bytes = Module.lengthBytesUTF8(heads[i].ref);
 			var git_remote_head = {
 				local : 0,
-				oid : [0, 0, 0, 0, 0],
-				loid : [0, 0, 0, 0, 0],
+				oid : EMPTY_OID.slice(0),
+				loid : EMPTY_OID.slice(0),
 				name : Module._malloc(name_bytes),
 				symref_target : NULL
 			};
