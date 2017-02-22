@@ -6,7 +6,7 @@ function github_revwalk(github_repo_url, callback)
 		var ref = stack.pop();
 		var blob_base64_decoded = null;
 		var type = "commit"; // tree, blob
-		callack(blob_base64_decoded, type);
+		callback(blob_base64_decoded, type);
 	}
 }
 
