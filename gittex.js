@@ -24,18 +24,7 @@ git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'numbe
 git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
 git_odb_write_pack = Module.cwrap('git_odb_write_pack', 'number', ['number', 'number', 'number', 'number']);
 git_object_free = Module.cwrap('git_object_free', null, ['number']);
-git_otype = {
-	GIT_OBJ_ANY : -2,		/**< Object can be any of the following */
-	GIT_OBJ_BAD : -1,		/**< Object is invalid. */
-	GIT_OBJ__EXT1 : 0,		/**< Reserved for future use. */
-	GIT_OBJ_COMMIT : 1,		/**< A commit object. */
-	GIT_OBJ_TREE : 2,		/**< A tree (directory listing) object. */
-	GIT_OBJ_BLOB : 3,		/**< A file revision object. */
-	GIT_OBJ_TAG : 4,		/**< An annotated tag object. */
-	GIT_OBJ__EXT2 : 5,		/**< Reserved for future use. */
-	GIT_OBJ_OFS_DELTA : 6, /**< A delta, base is given by an offset. */
-	GIT_OBJ_REF_DELTA : 7, /**< A delta, base is given by object id. */
-};
+git_otype = {GIT_OBJ_ANY : -2, GIT_OBJ_COMMIT : 1, GIT_OBJ_TREE : 2, GIT_OBJ_BLOB : 3};
 git_oid = function() { return [0, 0, 0, 0, 0]; };
 
 var github_git_transport = {
