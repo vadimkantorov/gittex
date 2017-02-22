@@ -10,8 +10,6 @@ function github_revwalk(github_repo_url, callback)
 	}
 }
 
-function git_oid() { return [0, 0, 0, 0, 0]; }
-
 // TODO: Free the mallocs!
 NULL = 0;
 GIT_ENOTFOUND = -3;
@@ -38,6 +36,7 @@ git_otype = {
 	GIT_OBJ_OFS_DELTA : 6, /**< A delta, base is given by an offset. */
 	GIT_OBJ_REF_DELTA : 7, /**< A delta, base is given by object id. */
 };
+git_oid = function() { return [0, 0, 0, 0, 0]; };
 
 var github_git_transport = {
 	ls			: Runtime.addFunction(function(out, size, transport)
