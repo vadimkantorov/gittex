@@ -1,3 +1,8 @@
+function github_revwalk(github_repo_url, callback)
+{
+	
+}
+
 // TODO: Free the mallocs!
 NULL = 0;
 GIT_ENOTFOUND = -3;
@@ -43,16 +48,19 @@ var github_git_transport = {
 	download_pack		: Runtime.addFunction(function(transport, repo, stats, progress_cb, progress_payload)
 	{
 		console.log('transport.download_pack');
-		var pack = Module._malloc(4), writepack = Module._malloc(4), odb = Module._malloc(4);
-		
+		var odb = Module._malloc(4), oid = Module._malloc(20);
 		git_repository_odb__weakptr(odb, repo);
-		git_odb_write_pack(writepack, odb, NULL, NULL);
-		git_packbuilder_new(pack, repo);
+		github_revwalk(github_git_transport.url.replace('github://', 'https://'), function(data, len, type) {
+			git_odb_write(oid, odb, data, len, type);
+		});
 		
 		/*
 		https://github.com/libgit2/libgit2/blob/master/src/transports/smart_protocol.c#L538
 		https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L527
-				
+		var pack = Module._malloc(4), writepack = Module._malloc(4);
+		git_odb_write_pack(writepack, odb, NULL, NULL);
+		git_packbuilder_new(pack, repo);
+		
 		foreach p:
 			writepack->append(writepack, p->data, p->len, stats);
 			
