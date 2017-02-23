@@ -1,5 +1,12 @@
 function github_revwalk(github_repo_url, callback)
 {
+	/*
+		head: https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
+		commmit: https://api.github.com/repos/vadimkantorov/gittex/git/commits/6bd464840fa7f0b65892ae2f309c4603598c00b1
+		tree: https://api.github.com/repos/vadimkantorov/gittex/git/trees/6c076e0eaea208e7ddf2a6c5792e46384f484841
+		blob: https://api.github.com/repos/vadimkantorov/gittex/git/blobs/2c1f27f30547c8c7368c2af5ff32b15678cdce39	
+	*/
+	
 	var stack = [];
 	while(stack.length > 0)
 	{
