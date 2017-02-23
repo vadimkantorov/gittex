@@ -22,7 +22,6 @@ git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
 giterr_clear = Module.cwrap('giterr_clear', null, []);
 git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
 git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
-git_odb_write_pack = Module.cwrap('git_odb_write_pack', 'number', ['number', 'number', 'number', 'number']);
 git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_otype = {GIT_OBJ_ANY : -2, GIT_OBJ_COMMIT : 1, GIT_OBJ_TREE : 2, GIT_OBJ_BLOB : 3};
 git_oid = function() { return [0, 0, 0, 0, 0]; };
