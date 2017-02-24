@@ -122,7 +122,7 @@ var github_git_transport = {
 	github_git_data : function(github_repo_url, object_type, object_id)
 	{
 		var result = null;
-		$.get('https://api.' + github_repo_url.replace('github.com', 'github.com/repos') + '/git/' + object_type + '/' + object_id, {async : false}).done(function(data) {result = data;});
+		$.get('https://api.' + github_repo_url.replace('github.com', 'github.com/repos') + '/git/' + object_type + 's/' + object_id, {async : false}).done(function(data) {result = data;});
 		return result;
 	},
 	github_revwalk : function(github_repo_url, callback)
@@ -139,13 +139,27 @@ var github_git_transport = {
 		while(object_stack.length > 0)
 		{
 			var object = object_stack.pop();
+			var data = github_git_data(github_repo_url, object.type, object.id);
 			switch(object.type)
 			{
 				case "commit":
+					object_stack.push({type : "tree", data.tree.sha});
+					for(var i = 0; i < data.parents.length; i++)
+						object_stack.push({type : "commit", id : data.parents[i].sha});
+					
+					var blob_contents = null;
+					callback(object.type, blob_contents);
 					break;
 				case "tree":
+					for(var i = 0; i < data.tree.length; i++)
+						object_stack.push({type : "blob", id : data.tree[i].sha});
+					
+					var blob_contents = null;
+					callback(object.type, blob_contents);
 					break;
 				case "blob":
+					var blob_contents = data.contents; //TODO: b64decode
+					callback(object.type, blob_contents);
 					break;
 				case "tag":
 					break;
