@@ -128,6 +128,7 @@ var github_git_transport = {
 	github_revwalk : function(github_repo_url, callback)
 	{
 		/*
+			https://github.com/creationix/js-github/blob/master/mixins/github-db.js
 			head: https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
 			commmit: https://api.github.com/repos/vadimkantorov/gittex/git/commits/6bd464840fa7f0b65892ae2f309c4603598c00b1
 			tree: https://api.github.com/repos/vadimkantorov/gittex/git/trees/6c076e0eaea208e7ddf2a6c5792e46384f484841
@@ -138,6 +139,17 @@ var github_git_transport = {
 		while(object_stack.length > 0)
 		{
 			var object = object_stack.pop();
+			switch(object.type)
+			{
+				case "commit":
+					break;
+				case "tree":
+					break;
+				case "blob":
+					break;
+				case "tag":
+					break;
+			}
 			var blob_base64_decoded = null;
 			callback(object.type, blob_base64_decoded);
 		}
