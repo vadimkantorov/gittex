@@ -1,5 +1,11 @@
 function github_revwalk(github_repo_url, callback)
 {
+	function github_git_data(object_type, object_id)
+	{
+		var result = null;
+		$.get('https://api.' + github_repo_url.replace('github.com', 'github.com/repos') + '/git/' + object_type + '/' + object_id, {async : false}).done(function(data) {result = data;});
+		return result;
+	}
 	/*
 		head: https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
 		commmit: https://api.github.com/repos/vadimkantorov/gittex/git/commits/6bd464840fa7f0b65892ae2f309c4603598c00b1
