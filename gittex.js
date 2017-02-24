@@ -12,6 +12,7 @@ git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'numbe
 git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
 git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_oid_fromstr = Module.cwrap('git_oid_fromstr', 'number', ['number', 'string']);
+git_oid_tostr_s = Module.cwrap('git_oid_tostr_s', 'string', ['number']);
 git_otype = {GIT_OBJ_ANY : -2, GIT_OBJ_COMMIT : 1, GIT_OBJ_TREE : 2, GIT_OBJ_BLOB : 3, GIT_OBJ_TAG : 4};
 git_oid = function() { return [0, 0, 0, 0, 0]; };
 
@@ -52,10 +53,12 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(git_oid());
 		git_repository_odb__weakptr(odb, repo);
-		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, blob_contents) {
+		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, object_id, blob_contents) {
 			var data = Module._malloc(blob_contents.length);
 			Module.writeArrayToMemory(blob_contents, data);
 			git_odb_write(oid, odb, data, blob_contents.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
+			if(git_oid_tostr_s(oid) != object_id)
+				console.log('bad write', object_type, object_id, blob_contents);
 			Module._free(data);
 		});
 		
@@ -134,6 +137,7 @@ var github_git_transport = {
 		{
 			var object = object_stack.pop();
 			var data = github_git_data(github_repo_url, object.type, object.id);
+			var object_contents = null;
 			switch(object.type)
 			{
 				case "commit":
@@ -141,26 +145,23 @@ var github_git_transport = {
 					for(var i = 0; i < data.parents.length; i++)
 						object_stack.push({type : "commit", id : data.parents[i].sha});
 					
-					var blob_contents = null;
-					callback(object.type, blob_contents);
+					object_contents = null;
 					break;
 				case "tree":
 					for(var i = 0; i < data.tree.length; i++)
 						object_stack.push({type : "blob", id : data.tree[i].sha});
 					
-					var blob_contents = null;
-					callback(object.type, blob_contents);
+					object_contents = null;
 					break;
 				case "blob":
-					var blob_contents = data.contents; //TODO: b64decode
-					callback(object.type, blob_contents);
+					object_contents = data.contents; //TODO: b64decode
 					break;
 				case "tag":
 					object_stack.push({type : data.object.type, data.object.sha});
-					var blob_contents = null;
-					callback(object.type, blob_contents);
+					object_contents = null;
 					break;
 			}
+			callback(object.type, object.id, object_contents);
 		}
 	}
 };
