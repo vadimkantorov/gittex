@@ -1,27 +1,3 @@
-function github_revwalk(github_repo_url, callback)
-{
-	function github_git_data(object_type, object_id)
-	{
-		var result = null;
-		$.get('https://api.' + github_repo_url.replace('github.com', 'github.com/repos') + '/git/' + object_type + '/' + object_id, {async : false}).done(function(data) {result = data;});
-		return result;
-	}
-	/*
-		head: https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
-		commmit: https://api.github.com/repos/vadimkantorov/gittex/git/commits/6bd464840fa7f0b65892ae2f309c4603598c00b1
-		tree: https://api.github.com/repos/vadimkantorov/gittex/git/trees/6c076e0eaea208e7ddf2a6c5792e46384f484841
-		blob: https://api.github.com/repos/vadimkantorov/gittex/git/blobs/2c1f27f30547c8c7368c2af5ff32b15678cdce39	
-	*/
-	
-	var object_stack = $.map(github_git_data('refs', 'heads'), function(head) { return {type : head.object.type, id : head.object.sha}; });
-	while(object_stack.length > 0)
-	{
-		var object = object_stack.pop();
-		var blob_base64_decoded = null;
-		callback(blob_base64_decoded, object.type);
-	}
-}
-
 // TODO: Free the mallocs!
 NULL = 0;
 GIT_ENOTFOUND = -3;
@@ -75,7 +51,7 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(git_oid());
 		git_repository_odb__weakptr(odb, repo);
-		github_revwalk(github_git_transport.url.replace('github://', ''), function(blob_contents, object_type) {
+		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, blob_contents) {
 			var data = Module._malloc(blob_contents.length);
 			Module.writeArrayToMemory(blob_contents, data);
 			git_odb_write(oid, odb, data, blob_contents.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : git_otype.GIT_OBJ_ANY);
@@ -95,19 +71,7 @@ var github_git_transport = {
 		github_git_transport.url = Module.UTF8ToString(url);
 		console.log('transport.connect', github_git_transport.url);
 		
-		// https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
-		var heads = [
-		{
-		    "ref": "refs/heads/master",
-		    "url": "https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads/master",
-		    "object": {
-		      "sha": "822cbba0fe905e49c0cc1e0cd6bbb7f921d34bbc",
-		      "type": "commit",
-		      "url": "https://api.github.com/repos/vadimkantorov/gittex/git/commits/822cbba0fe905e49c0cc1e0cd6bbb7f921d34bbc"
-		    }
-		  }
-		];
-		
+		var heads = github_git_transport.github_git_data(github_git_transport.url, 'refs', 'heads');
 		// https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L95
 		for(var i = 0; i < heads.length; i++)
 		{
@@ -153,7 +117,30 @@ var github_git_transport = {
 	{
 		console.log('git_transport_cb');
 		Module.setValue(out, github_git_transport.struct_pack_i32([github_git_transport.version, github_git_transport.set_callbacks, github_git_transport.set_custom_headers, github_git_transport.connect, github_git_transport.ls, github_git_transport.push, github_git_transport.negotiate_fetch, github_git_transport.download_pack, github_git_transport.is_connected, github_git_transport.read_flags, github_git_transport.cancel, github_git_transport.close, github_git_transport.free]), 'i32');
-	})
+	}),
+	github_git_data : function(github_repo_url, object_type, object_id)
+	{
+		var result = null;
+		$.get('https://api.' + github_repo_url.replace('github.com', 'github.com/repos') + '/git/' + object_type + '/' + object_id, {async : false}).done(function(data) {result = data;});
+		return result;
+	},
+	github_revwalk : function(github_repo_url, callback)
+	{
+		/*
+			head: https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
+			commmit: https://api.github.com/repos/vadimkantorov/gittex/git/commits/6bd464840fa7f0b65892ae2f309c4603598c00b1
+			tree: https://api.github.com/repos/vadimkantorov/gittex/git/trees/6c076e0eaea208e7ddf2a6c5792e46384f484841
+			blob: https://api.github.com/repos/vadimkantorov/gittex/git/blobs/2c1f27f30547c8c7368c2af5ff32b15678cdce39	
+		*/
+		
+		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'refs', 'heads'), function(head) { return {type : head.object.type, id : head.object.sha}; });
+		while(object_stack.length > 0)
+		{
+			var object = object_stack.pop();
+			var blob_base64_decoded = null;
+			callback(object.type, blob_base64_decoded);
+		}
+	}
 };
 
 Module['_main'] = function()
