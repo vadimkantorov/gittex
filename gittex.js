@@ -127,15 +127,9 @@ var github_git_transport = {
 	},
 	github_revwalk : function(github_repo_url, callback)
 	{
-		/*
-			https://github.com/creationix/js-github/blob/master/mixins/github-db.js
-			head: https://api.github.com/repos/vadimkantorov/gittex/git/refs/heads
-			commmit: https://api.github.com/repos/vadimkantorov/gittex/git/commits/6bd464840fa7f0b65892ae2f309c4603598c00b1
-			tree: https://api.github.com/repos/vadimkantorov/gittex/git/trees/6c076e0eaea208e7ddf2a6c5792e46384f484841
-			blob: https://api.github.com/repos/vadimkantorov/gittex/git/blobs/2c1f27f30547c8c7368c2af5ff32b15678cdce39	
-		*/
+		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
 		
-		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'refs', 'heads'), function(head) { return {type : head.object.type, id : head.object.sha}; });
+		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'ref', 'heads').concat(github_git_transport.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
 		while(object_stack.length > 0)
 		{
 			var object = object_stack.pop();
@@ -162,10 +156,11 @@ var github_git_transport = {
 					callback(object.type, blob_contents);
 					break;
 				case "tag":
+					object_stack.push({type : data.object.type, data.object.sha});
+					var blob_contents = null;
+					callback(object.type, blob_contents);
 					break;
 			}
-			var blob_base64_decoded = null;
-			callback(object.type, blob_base64_decoded);
 		}
 	}
 };
