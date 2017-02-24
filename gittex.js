@@ -13,13 +13,12 @@ function github_revwalk(github_repo_url, callback)
 		blob: https://api.github.com/repos/vadimkantorov/gittex/git/blobs/2c1f27f30547c8c7368c2af5ff32b15678cdce39	
 	*/
 	
-	var stack = [];
-	while(stack.length > 0)
+	var object_stack = $.map(github_git_data('refs', 'heads'), function(head) { return {type : head.object.type, id : head.object.sha}; });
+	while(object_stack.length > 0)
 	{
-		var ref = stack.pop();
+		var object = object_stack.pop();
 		var blob_base64_decoded = null;
-		var type = "commit"; // tree, blob
-		callback(blob_base64_decoded, type);
+		callback(blob_base64_decoded, object.type);
 	}
 }
 
