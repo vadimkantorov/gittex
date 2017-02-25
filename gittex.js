@@ -133,9 +133,13 @@ var github_git_transport = {
 		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
 		
 		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'ref', 'heads').concat(github_git_transport.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
+		var visited = {};
 		while(object_stack.length > 0)
 		{
 			var object = object_stack.pop();
+			if(visited[object.id])
+				continue;
+			visited[object.id] = true;
 			var data = github_git_data(github_repo_url, object.type, object.id);
 			var object_contents = null;
 			switch(object.type)
