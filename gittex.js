@@ -53,12 +53,12 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(git_oid());
 		git_repository_odb__weakptr(odb, repo);
-		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, object_id, blob_contents) {
-			var data = Module._malloc(blob_contents.length);
-			Module.writeArrayToMemory(blob_contents, data);
+		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, object_id, object_body) {
+			var data = Module._malloc(object_body.length);
+			Module.writeArrayToMemory(object_body, data);
 			git_odb_write(oid, odb, data, blob_contents.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
 			if(git_oid_tostr_s(oid) != object_id)
-				console.log('bad write', object_type, object_id, blob_contents);
+				console.log('bad write', object_type, object_id, object_body);
 			Module._free(data);
 		});
 		
@@ -131,7 +131,6 @@ var github_git_transport = {
 	github_revwalk : function(github_repo_url, callback)
 	{
 		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
-		
 		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'ref', 'heads').concat(github_git_transport.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
 		var visited = {};
 		while(object_stack.length > 0)
@@ -141,31 +140,27 @@ var github_git_transport = {
 				continue;
 			visited[object.id] = true;
 			var data = github_git_data(github_repo_url, object.type, object.id);
-			var object_contents = null;
+			var object_body = null;
 			switch(object.type)
 			{
 				case "commit":
 					object_stack.push({type : "tree", data.tree.sha});
-					for(var i = 0; i < data.parents.length; i++)
-						object_stack.push({type : "commit", id : data.parents[i].sha});
-					
-					object_contents = null;
+					object_stack = object_stack.concat($.map(function(commit) { return {type : "commit", id : commit.sha} ;}, data.parents));
+					object_body = null;
 					break;
 				case "tree":
-					for(var i = 0; i < data.tree.length; i++)
-						object_stack.push({type : "blob", id : data.tree[i].sha});
-					
-					object_contents = null;
+					object_stack = object_stack.concat($.map(function(blob) { return {type : "blob", id : blob.sha} ;}, data.tree));
+					object_body = null;
 					break;
 				case "blob":
-					object_contents = data.contents; //TODO: b64decode
+					object_body = data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents;
 					break;
 				case "tag":
-					object_stack.push({type : data.object.type, data.object.sha});
-					object_contents = null;
+					object_stack.push({type : data.object.type, id : data.object.sha});
+					object_body = null;
 					break;
 			}
-			callback(object.type, object.id, object_contents);
+			callback(object.type, object.id, object_body);
 		}
 	}
 };
