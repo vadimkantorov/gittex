@@ -144,12 +144,12 @@ var github_git_transport = {
 			switch(object.type)
 			{
 				case "commit":
-					object_stack.push({type : "tree", data.tree.sha});
-					object_stack = object_stack.concat($.map(function(commit) { return {type : "commit", id : commit.sha} ;}, data.parents));
+					object_stack.push({type : "tree", id : data.tree.sha});
+					object_stack = object_stack.concat($.map(function(commit) { return {type : "commit", id : commit.sha}; }, data.parents));
 					object_body = null;
 					break;
 				case "tree":
-					object_stack = object_stack.concat($.map(function(blob) { return {type : "blob", id : blob.sha} ;}, data.tree));
+					object_stack = object_stack.concat($.map(function(blob) { return {type : "blob", id : blob.sha}; }, data.tree));
 					object_body = null;
 					break;
 				case "blob":
