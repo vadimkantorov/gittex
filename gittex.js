@@ -130,7 +130,7 @@ var github_git_transport = {
 	},
 	github_revwalk : function(github_repo_url, callback)
 	{
-		function formatPerson(person)
+		function format_person(person)
 		{
 		}
 		
@@ -149,11 +149,11 @@ var github_git_transport = {
 			{
 				case "commit":
 					object_stack.push({type : "tree", id : data.tree.sha});
-					object_stack = object_stack.concat($.map(function(commit) { return {type : "commit", id : commit.sha}; }, data.parents));
-					object_body = null;
+					object_stack = object_stack.concat($.map(data.parents, function(commit) { return {type : "commit", id : commit.sha}; }));
+					object_body = unescape(encodeURIComponent("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
 					break;
 				case "tree":
-					object_stack = object_stack.concat($.map(function(blob) { return {type : "blob", id : blob.sha}; }, data.tree));
+					object_stack = object_stack.concat($.map(data.tree, function(blob) { return {type : "blob", id : blob.sha}; }));
 					object_body = null;
 					break;
 				case "blob":
@@ -161,7 +161,7 @@ var github_git_transport = {
 					break;
 				case "tag":
 					object_stack.push({type : data.object.type, id : data.object.sha});
-					object_body = unescape(encodeURIComponent("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + formatPerson(data.tagger) + "\n\n" + data.message));
+					object_body = unescape(encodeURIComponent("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
 					break;
 			}
 			callback(object.type, object.id, object_body);
