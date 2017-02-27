@@ -130,6 +130,10 @@ var github_git_transport = {
 	},
 	github_revwalk : function(github_repo_url, callback)
 	{
+		function formatPerson(person)
+		{
+		}
+		
 		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
 		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'ref', 'heads').concat(github_git_transport.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
 		var visited = {};
@@ -157,7 +161,7 @@ var github_git_transport = {
 					break;
 				case "tag":
 					object_stack.push({type : data.object.type, id : data.object.sha});
-					object_body = null;
+					object_body = unescape(encodeURIComponent("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + formatPerson(data.tagger) + "\n\n" + data.message));
 					break;
 			}
 			callback(object.type, object.id, object_body);
