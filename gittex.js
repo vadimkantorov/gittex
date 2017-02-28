@@ -154,8 +154,9 @@ var github_git_transport = {
 					object_body = unescape(encodeURIComponent("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
 					break;
 				case "tree":
-					object_stack = object_stack.concat($.map(data.tree, function(blob) { return {type : "blob", id : blob.sha}; }));
-					object_body = null;
+					object_stack = object_stack.concat($.map(data.tree, function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
+					var decode_hex = function() {};
+					object_body = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + unescape(encodeURIComponent(tree_item.name)) + "\0" + decode_hex(tree_item.sha) }).join("");
 					break;
 				case "blob":
 					object_body = data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents;
