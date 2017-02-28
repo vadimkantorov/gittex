@@ -166,7 +166,7 @@ var github_git_transport = {
 					object_body = unescape(encodeURIComponent("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
 					break;
 			}
-			callback(object.type, object.id, object_body);
+			callback(object.type, object.id, object.type + " " + object_body.length + "\0" + object_body);
 		}
 	}
 };
