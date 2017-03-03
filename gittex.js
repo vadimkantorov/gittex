@@ -167,7 +167,11 @@ var github_git_transport = {
 					object_body = unescape(encodeURIComponent("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
 					break;
 			}
-			object_body = UInt8Array(object.type + " " + object_body.length + "\0") + UInt8Array(object_body);
+			var header_array = new UInt8Array($.map((object.type + " " + object_body.length + "\0").split(''), function(c){ return c.charCodeAt(); }));
+			var body_array = new UInt8Array(object_body);
+			object_body = new UInt8Array(header_array.length + body_array.length);
+			object_body.set(header_array);
+			object_body.set(body_array, header_array.length);
 			callback(object.type, object.id, object_body);
 		}
 	}
