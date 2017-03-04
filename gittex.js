@@ -130,6 +130,11 @@ var github_git_transport = {
 	},
 	github_revwalk : function(github_repo_url, callback)
 	{
+		function encode_utf8(str)
+		{
+			return unescape(encodeURIComponent(str));
+		}
+		
 		function format_person(person)
 		{
 		}
@@ -152,19 +157,19 @@ var github_git_transport = {
 				case "commit":
 					object_stack.push({type : "tree", id : data.tree.sha});
 					object_stack = object_stack.concat($.map(data.parents, function(commit) { return {type : "commit", id : commit.sha}; }));
-					object_body = unescape(encodeURIComponent("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
+					object_body = encode_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message);
 					break;
 				case "tree":
 					object_stack = object_stack.concat($.map(data.tree, function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
 					var decode_hex = function() {};
-					object_body = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + unescape(encodeURIComponent(tree_item.name)) + "\0" + decode_hex(tree_item.sha) }).join("");
+					object_body = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + encode_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join("");
 					break;
 				case "blob":
 					object_body = data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents;
 					break;
 				case "tag":
 					object_stack.push({type : data.object.type, id : data.object.sha});
-					object_body = unescape(encodeURIComponent("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
+					object_body = encode_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
 					break;
 			}
 			var header_array = new UInt8Array($.map((object.type + " " + object_body.length + "\0").split(''), function(c){ return c.charCodeAt(); }));
