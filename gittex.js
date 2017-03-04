@@ -130,9 +130,14 @@ var github_git_transport = {
 	},
 	github_revwalk : function(github_repo_url, callback)
 	{
-		function encode_utf8(str)
+		function utf16_to_utf8(str)
 		{
 			return unescape(encodeURIComponent(str));
+		}
+		
+		function to_array(str)
+		{
+			return new Uint8Array($.map(str.split(''), function(c){ return c.charCodeAt(); }));
 		}
 		
 		function format_person(person)
@@ -141,6 +146,7 @@ var github_git_transport = {
 		
 		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
 		// https://github.com/creationix/js-git/blob/master/lib/object-codec.js#L52
+		// https://github.com/creationix/bodec/blob/master/bodec-browser.js#L145
 		// http://stackoverflow.com/questions/14790681/what-is-the-internal-format-of-a-git-tree-object
 		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'ref', 'heads').concat(github_git_transport.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
 		var visited = {};
@@ -151,33 +157,32 @@ var github_git_transport = {
 				continue;
 			visited[object.id] = true;
 			var data = github_git_data(github_repo_url, object.type, object.id);
-			var object_body = null;
+			var body_array = null;
 			switch(object.type)
 			{
 				case "commit":
 					object_stack.push({type : "tree", id : data.tree.sha});
 					object_stack = object_stack.concat($.map(data.parents, function(commit) { return {type : "commit", id : commit.sha}; }));
-					object_body = encode_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message);
+					body_array = to_array(utf16_to_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
+					break;
+				case "tag":
+					object_stack.push({type : data.object.type, id : data.object.sha});
+					body_array = to_array(utf16_to_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message)));
 					break;
 				case "tree":
 					object_stack = object_stack.concat($.map(data.tree, function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
 					var decode_hex = function() {};
-					object_body = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + encode_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join("");
+					body_array = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join("");
 					break;
 				case "blob":
-					object_body = data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents;
-					break;
-				case "tag":
-					object_stack.push({type : data.object.type, id : data.object.sha});
-					object_body = encode_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
+					body_array = data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents;
 					break;
 			}
-			var header_array = new UInt8Array($.map((object.type + " " + object_body.length + "\0").split(''), function(c){ return c.charCodeAt(); }));
-			var body_array = new UInt8Array(object_body);
-			object_body = new UInt8Array(header_array.length + body_array.length);
-			object_body.set(header_array);
-			object_body.set(body_array, header_array.length);
-			callback(object.type, object.id, object_body);
+			var header_array = to_array(object.type + " " + body_array.length + "\0");
+			var object_array = new Uint8Array(header_array.length + body_array.length);
+			object_array.set(header_array);
+			object_array.set(body_array, header_array.length);
+			callback(object.type, object.id, object_array);
 		}
 	}
 };
