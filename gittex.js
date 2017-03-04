@@ -175,7 +175,7 @@ var github_git_transport = {
 					body_array = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join("");
 					break;
 				case "blob":
-					body_array = data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents;
+					body_array = to_array(utf16_to_utf8(data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents));
 					break;
 			}
 			var header_array = to_array(object.type + " " + body_array.length + "\0");
