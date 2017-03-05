@@ -53,12 +53,12 @@ var github_git_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_api_transport.struct_pack_i32(git_oid());
 		git_repository_odb__weakptr(odb, repo);
-		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, object_id, object_body) {
-			var data = Module._malloc(object_body.length);
-			Module.writeArrayToMemory(object_body, data);
-			git_odb_write(oid, odb, data, blob_contents.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
+		github_git_transport.github_revwalk(github_git_transport.url.replace('github://', ''), function(object_type, object_id, object_array) {
+			var data = Module._malloc(object_array.length);
+			Module.writeArrayToMemory(object_array, data);
+			git_odb_write(oid, odb, data, data.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
 			if(git_oid_tostr_s(oid) != object_id)
-				console.log('bad write', object_type, object_id, object_body);
+				console.log('bad write', object_type, object_id);
 			Module._free(data);
 		});
 		
