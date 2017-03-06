@@ -141,6 +141,35 @@ var github_git_transport = {
 		
 		function format_person(person)
 		{
+			function safe(string) {
+  return string.replace(/(?:^[\.,:;<>"']+|[\0\n<>]+|[\.,:;<>"']+$)/gm, "");
+}
+
+function two(num) {
+  return (num < 10 ? "0" : "") + num;
+}
+
+function formatDate(date) {
+  var seconds, offset;
+  if (date.seconds) {
+    seconds = date.seconds;
+    offset = date.offset;
+  }
+  // Also accept Date instances
+  else {
+    seconds = Math.floor(date.getTime() / 1000);
+    offset = date.getTimezoneOffset();
+  }
+  var neg = "+";
+  if (offset <= 0) offset = -offset;
+  else neg = "-";
+  offset = neg + two(Math.floor(offset / 60)) + two(offset % 60);
+  return seconds + " " + offset;
+}
+			
+			 return safe(person.name) +
+    " <" + safe(person.email) + "> " +
+    formatDate(person.date);
 		}
 		
 		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
