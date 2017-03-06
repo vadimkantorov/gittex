@@ -57,9 +57,8 @@ var github_git_transport = {
 			var data = Module._malloc(object_array.length);
 			Module.writeArrayToMemory(object_array, data);
 			git_odb_write(oid, odb, data, data.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
-			if(git_oid_tostr_s(oid) != object_id)
-				console.log('bad write', object_type, object_id);
 			Module._free(data);
+			console.log(git_oid_tostr_s(oid) == object_id ? 'OK' : 'FAIL', object_type, object_id);
 		});
 		
 		Module._free(odb);
