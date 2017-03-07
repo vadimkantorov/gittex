@@ -164,7 +164,7 @@ var github_git_transport = {
 		// https://github.com/creationix/js-git/blob/master/lib/object-codec.js#L52
 		// https://github.com/creationix/bodec/blob/master/bodec-browser.js#L145
 		// http://stackoverflow.com/questions/14790681/what-is-the-internal-format-of-a-git-tree-object
-		var object_stack = $.map(github_git_transport.github_git_data(github_repo_url, 'ref', 'heads').concat(github_git_transport.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
+		var object_stack = $.map(this.github_git_data(github_repo_url, 'ref', 'heads').concat(this.github_git_data(github_repo_url, 'ref', 'tags')), function(ref) { return {type : ref.object.type, id : ref.object.sha}; });
 		var visited = {};
 		while(object_stack.length > 0)
 		{
@@ -172,7 +172,7 @@ var github_git_transport = {
 			if(visited[object.id])
 				continue;
 			visited[object.id] = true;
-			var data = github_git_transport.github_git_data(github_repo_url, object.type, object.id);
+			var data = this.github_git_data(github_repo_url, object.type, object.id);
 			var body_array = null;
 			switch(object.type)
 			{
