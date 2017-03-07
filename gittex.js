@@ -139,37 +139,25 @@ var github_git_transport = {
 			return new Uint8Array($.map(str.split(''), function(c){ return c.charCodeAt(); }));
 		}
 		
+		function decode_hex(str)
+		{
+		}
+		
 		function format_person(person)
 		{
-			function safe(string) {
-  return string.replace(/(?:^[\.,:;<>"']+|[\0\n<>]+|[\.,:;<>"']+$)/gm, "");
-}
+			function safe(str) { return str.replace(/(?:^[\.,:;<>"']+|[\0\n<>]+|[\.,:;<>"']+$)/gm, ""); }
+			function two(num) { return (num < 10 ? "0" : "") + num; }
 
-function two(num) {
-  return (num < 10 ? "0" : "") + num;
-}
+			var seconds = person.date.seconds; // Math.floor(date.getTime() / 1000)
+			var offset = person.date.offset; //date.getTimezoneOffset();
+			var neg = "+";
+			if (offset <= 0)
+				offset = -offset;
+			else
+				neg = "-";
+			offset = neg + two(Math.floor(offset / 60)) + two(offset % 60);
 
-function formatDate(date) {
-  var seconds, offset;
-  if (date.seconds) {
-    seconds = date.seconds;
-    offset = date.offset;
-  }
-  // Also accept Date instances
-  else {
-    seconds = Math.floor(date.getTime() / 1000);
-    offset = date.getTimezoneOffset();
-  }
-  var neg = "+";
-  if (offset <= 0) offset = -offset;
-  else neg = "-";
-  offset = neg + two(Math.floor(offset / 60)) + two(offset % 60);
-  return seconds + " " + offset;
-}
-			
-			 return safe(person.name) +
-    " <" + safe(person.email) + "> " +
-    formatDate(person.date);
+			return safe(person.name) + " <" + safe(person.email) + "> " + seconds + " " + offset;
 		}
 		
 		// https://github.com/creationix/js-github/blob/master/mixins/github-db.js
@@ -184,7 +172,7 @@ function formatDate(date) {
 			if(visited[object.id])
 				continue;
 			visited[object.id] = true;
-			var data = github_git_data(github_repo_url, object.type, object.id);
+			var data = github_git_transport.github_git_data(github_repo_url, object.type, object.id);
 			var body_array = null;
 			switch(object.type)
 			{
@@ -199,7 +187,6 @@ function formatDate(date) {
 					break;
 				case "tree":
 					object_stack = object_stack.concat($.map(data.tree, function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
-					var decode_hex = function() {};
 					body_array = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join("");
 					break;
 				case "blob":
