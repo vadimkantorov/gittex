@@ -222,7 +222,7 @@ var github_git_transport = {
 Module['_main'] = function()
 {
 	console.log('init: ', git_libgit2_init());
-	console.log('register: ', git_transport_register('github', github_git_transport.git_transport_cb), NULL));
+	console.log('register: ', git_transport_register('github', github_git_transport.git_transport_cb, NULL));
 	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/gittex.git', 'gittex', 0));
 }
 
