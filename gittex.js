@@ -97,13 +97,36 @@ var github_git_transport = {
 	read_flags		: function(transport, flags) { console.log('transport.read_flags'); Module.setValue(flags, this.flags, 'i32'); return 0; },
 	is_connected		: function(transport) { console.log('transport.is_connected'); return this.connected; },
 	push			: function(transport, push, callbacks) { console.log('transport.push', 'nop'); return 1; },
-	set_callbacks		: function(transport, progress_cb, error_cb, certificate_check_cb, payload) { console.log('transport.set_callbacks', 'nop'); return 0; },
-	set_custom_headers	: function(transport, custom_headers) { console.log('transport.set_custom_headers', 'nop'); return 0; }, // convert custom_headers from git_strarray* to UTF16
+	set_callbacks		: function(transport, progress_cb, error_cb, certificate_check_cb, payload)
+	{
+		console.log('transport.set_callbacks');
+		this.progress_cb = progress_cb;
+		this.error_cb = error_cb;
+		this.certificate_check_cb = certificate_check_cb;
+		return 0; 
+	},
+	set_custom_headers	: function(transport, custom_headers)
+	{
+		console.log('transport.set_custom_headers');
+		var custom_headers_count = Module.getValue(custom_headers + 4, 'i32');
+		var custom_headers_strings = Module.getValue(custom_headers, '*');
+		this.custom_headers = [];
+		for(var i = 0; i < custom_header_count)
+		{
+			var header = Module.UTF8ToString(Module.getValue(custom_headers_strings + 4 * i, '*'));
+			this.custom_headers.push(header);
+		}
+		return 0;
+	},
 	cancel			: function(transport) { console.log('transport.cancel', 'nop'); return 0; },
 	close			: function(transport) { console.log('transport.close'); this.connected = 0; return 0; },
 	free			: function(transport) { console.log('transport.free'); this.close(transport); },
 	version 		: 1,
 	connected		: 0,
+	custom_headers		: [],
+	certificate_check_cb	: null,
+	error_cb		: null,
+	progress_cb		: null,
 	
 	flags			: 0,
 	direction		: 0,
