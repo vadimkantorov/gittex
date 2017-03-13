@@ -178,8 +178,20 @@ var github_git_transport = {
 			return new Uint8Array($.map(str.split(''), function(c){ return c.charCodeAt(); }));
 		}
 		
-		function decode_hex(str)
-		{
+		function decodeHex(hex) {
+			function codeToNibble(code) {
+  code |= 0;
+  return (code - ((code & 0x40) ? 0x57 : 0x30))|0;
+}
+		  var j = 0, l = hex.length;
+		  var raw = "";
+		  while (j < l) {
+		    raw += String.fromCharCode(
+		       (codeToNibble(hex.charCodeAt(j++)) << 4)
+		      | codeToNibble(hex.charCodeAt(j++))
+		    );
+		  }
+		  return raw;
 		}
 		
 		function format_person(person)
