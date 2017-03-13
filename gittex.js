@@ -1,4 +1,3 @@
-// TODO: Free the mallocs!
 NULL = 0;
 GIT_ENOTFOUND = -3;
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number']);
@@ -24,7 +23,7 @@ var github_git_transport = {
 			console.log('transport.ls', "the transport has not yet loaded the refs");
 			return -1;
 		}
-		Module.setValue(out, this.struct_pack_i32(this.refs), 'i32');
+		Module.setValue(out, this.struct_pack_i32(this.refs), 'i32'); //TODO: LEAKS
 		Module.setValue(size, this.refs.length, 'i32');
 		return 0; 
 	},
@@ -89,7 +88,7 @@ var github_git_transport = {
 			Module.stringToUTF8(heads[i].ref, git_remote_head.name, name_bytes);
 			for(var j = 0; j < git_remote_head.oid.length; j++)
 				git_remote_head.oid[j] = parseInt(heads[i].object.sha.substring(j * 8, (j + 1) * 8), 16);
-			this.refs.append(struct_pack_i32([git_remote_head.local].concat(git_remote_head.oid).concat(git_remote_head.loid).concat([git_remote_head.name, git_remote_head.symref_target])));
+			this.refs.append(struct_pack_i32([git_remote_head.local].concat(git_remote_head.oid).concat(git_remote_head.loid).concat([git_remote_head.name, git_remote_head.symref_target]))); //TODO: LEAKS
 		}
 		this.have_refs = 1;
 		return 0; 
@@ -158,7 +157,7 @@ var github_git_transport = {
 			 github_git_transport.cancel, 
 			 github_git_transport.close, 
 			 github_git_transport.free]
-		, Runtime.addFunction)), 'i32')
+		, Runtime.addFunction)), 'i32') //TODO: LEAKS
 		Module.setValue(out, github_git_transport.git_transport_struct_pointer);
 	}),
 	github_git_data : function(github_repo_url, object_type, object_id)
