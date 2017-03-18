@@ -1,9 +1,0 @@
-[submodule "libgit2"]
-	path = libgit2
-	url = https://github.com/libgit2/libgit2
-[submodule "texlive.js"]
-	path = texlive.js
-	url = https://github.com/manuels/texlive.js/
-[submodule "vim.js"]
-	path = vim.js
-	url = https://github.com/coolwanglu/vim.js
