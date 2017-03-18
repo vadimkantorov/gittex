@@ -180,9 +180,9 @@ var github_git_transport = {
 		
 		function decodeHex(hex) {
 			function codeToNibble(code) {
-  code |= 0;
-  return (code - ((code & 0x40) ? 0x57 : 0x30))|0;
-}
+			  code |= 0;
+			  return (code - ((code & 0x40) ? 0x57 : 0x30))|0;
+			}
 		  var j = 0, l = hex.length;
 		  var raw = "";
 		  while (j < l) {
