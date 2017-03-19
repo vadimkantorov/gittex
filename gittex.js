@@ -34,7 +34,7 @@ var github_git_transport = {
 		{
 			var git_object = Module._malloc(4);
 			var refs_i_loid = this.refs[i] + 4 + 20, refs_i_name = this.refs[i] + 4 + 20 + 20;
-			var error = git_revparse_single(git_object, repo, refs_i_name));
+			var error = git_revparse_single(git_object, repo, refs_i_name);
 			if (!error)
 				git_oid_cpy(refs_i_loid, git_object_id(git_object)); // refs[i].loid
 			else if (error != GIT_ENOTFOUND)
@@ -110,7 +110,7 @@ var github_git_transport = {
 		var custom_headers_count = Module.getValue(custom_headers + 4, 'i32');
 		var custom_headers_strings = Module.getValue(custom_headers, '*');
 		this.custom_headers = [];
-		for(var i = 0; i < custom_header_count)
+		for(var i = 0; i < custom_header_count; i++)
 		{
 			var header = Module.UTF8ToString(Module.getValue(custom_headers_strings + 4 * i, '*'));
 			this.custom_headers.push(header);
@@ -230,11 +230,11 @@ var github_git_transport = {
 				case "commit":
 					object_stack.push({type : "tree", id : data.tree.sha});
 					object_stack = object_stack.concat($.map(data.parents, function(commit) { return {type : "commit", id : commit.sha}; }));
-					body_array = to_array(utf16_to_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha); }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
+					body_array = to_array(utf16_to_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha; }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
 					break;
 				case "tag":
 					object_stack.push({type : data.object.type, id : data.object.sha});
-					body_array = to_array(utf16_to_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message)));
+					body_array = to_array(utf16_to_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
 					break;
 				case "tree":
 					object_stack = object_stack.concat($.map(data.tree, function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
