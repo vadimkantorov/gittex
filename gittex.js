@@ -1,5 +1,3 @@
-NULL = 0;
-GIT_ENOTFOUND = -3;
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number']);
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
@@ -13,7 +11,9 @@ git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_oid_fromstr = Module.cwrap('git_oid_fromstr', 'number', ['number', 'string']);
 git_oid_tostr_s = Module.cwrap('git_oid_tostr_s', 'string', ['number']);
 git_otype = {GIT_OBJ_ANY : -2, GIT_OBJ_COMMIT : 1, GIT_OBJ_TREE : 2, GIT_OBJ_BLOB : 3, GIT_OBJ_TAG : 4};
+git_error_code = {GIT_ENOTFOUND : -3, GIT_EINVALIDSPEC : -12};
 git_oid = function() { return [0, 0, 0, 0, 0]; };
+NULL = 0;
 
 var github_transport = {
 	ls			: function(out, size, transport)
@@ -37,8 +37,11 @@ var github_transport = {
 			var error = git_revparse_single(git_object, repo, refs_i_name);
 			if (!error)
 				git_oid_cpy(refs_i_loid, git_object_id(git_object)); // refs[i].loid
-			else if (error != GIT_ENOTFOUND)
+			else if (error != git_error_code.GIT_ENOTFOUND)
+			{
+				console.log('transport.negotiate_fetch', 'error', error);
 				return error;
+			}
 			else
 				giterr_clear();
 			
@@ -55,7 +58,6 @@ var github_transport = {
 		github_transport.github_revwalk(github_transport.url, function(object_type, object_id, object_array) {
 			var data = Module._malloc(object_array.length);
 			Module.writeArrayToMemory(object_array, data);
-			console.log(oid, odb, data, object_array.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
 			console.log('write', git_odb_write(oid, odb, data, object_array.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
 			Module._free(data);
 			console.log(git_oid_tostr_s(oid) == object_id ? 'OK' : 'FAIL', object_type, object_id);
