@@ -2,7 +2,7 @@ space := $(subst ,, )
 comma := ,
 
 LIBGIT2_EXPORTED_FUNCTIONS = git_clone git_libgit2_init git_transport_register git_revparse_single git_object_id git_oid_cpy giterr_clear git_repository_odb__weakptr git_odb_write git_object_free git_oid_fromstr git_oid_tostr_s 
-LIBGIT2_EMCC_FLAGS = -O2 -s ASSERTIONS=1 -s RESERVED_FUNCTION_POINTERS=30 -s EXPORTED_FUNCTIONS=[\'_$(subst $(space),\'$(comma)\'_,$(LIBGIT2_EXPORTED_FUNCTIONS))\'] -Wno-incompatible-pointer-types -Wno-shift-negative-value -Wno-format
+LIBGIT2_EMCC_FLAGS = -O2 -s ASSERTIONS=2 -s RESERVED_FUNCTION_POINTERS=30 -s EXPORTED_FUNCTIONS=[\'_$(subst $(space),\'$(comma)\'_,$(LIBGIT2_EXPORTED_FUNCTIONS))\'] -Wno-incompatible-pointer-types -Wno-shift-negative-value -Wno-format
 
 build/libjit2.js:
 	mkdir -p build && cd build && \
