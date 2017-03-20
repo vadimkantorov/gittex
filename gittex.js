@@ -35,6 +35,7 @@ var github_transport = {
 			var git_object = Module._malloc(4);
 			var refs_i_loid = github_transport.refs[i] + 4 + 20, refs_i_name = github_transport.refs[i] + 4 + 20 + 20;
 			var error = git_revparse_single(git_object, repo, refs_i_name);
+			console.log('transport.negotiate_fetch', i, Module.UTF8ToString(refs_i_name));
 			if (!error)
 				git_oid_cpy(refs_i_loid, git_object_id(git_object)); // refs[i].loid
 			else if (error != git_error_code.GIT_ENOTFOUND)
