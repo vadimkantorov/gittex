@@ -34,10 +34,9 @@ var github_transport = {
 		{
 			var git_object = Module._malloc(4);
 			var refs_i_loid = github_transport.refs[i] + 4 + 20, refs_i_name = github_transport.refs[i] + 4 + 20 + 20;
-			var error = git_revparse_single(git_object, repo, refs_i_name);
-			console.log('transport.negotiate_fetch', i, Module.UTF8ToString(refs_i_name));
+			var error = git_revparse_single(git_object, repo, Module.getValue(refs_i_name, 'i32'));
 			if (!error)
-				git_oid_cpy(refs_i_loid, git_object_id(git_object)); // refs[i].loid
+				git_oid_cpy(refs_i_loid, git_object_id(git_object));
 			else if (error != git_error_code.GIT_ENOTFOUND)
 			{
 				console.log('transport.negotiate_fetch', 'error', error);
@@ -81,7 +80,7 @@ var github_transport = {
 		// https://github.com/libgit2/libgit2/blob/master/src/transports/local.c#L95
 		for(var i = 0; i < heads.length; i++)
 		{
-			var name_bytes = Module.lengthBytesUTF8(heads[i].ref);
+			var name_bytes = 1 + Module.lengthBytesUTF8(heads[i].ref);
 			var git_remote_head = {
 				local : 0,
 				oid : git_oid(),
