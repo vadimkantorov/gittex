@@ -161,6 +161,7 @@ var github_transport = {
 	}),
 	github_git_data : function(github_repo_url, object_type, object_id)
 	{
+		// access tokens are at https://github.com/settings/tokens
 		var result = null;
 		var api_url = github_repo_url.replace('github://', 'https://').replace('github.com', 'api.github.com/repos') + '/git/' + object_type + 's/' + object_id + (window.location.hash ? '?access_token=' + window.location.hash : '');
 		$.ajax(api_url, {async : false}).done(function(data) {result = data;});
