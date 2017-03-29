@@ -12,6 +12,7 @@ git_oid_fromstr = Module.cwrap('git_oid_fromstr', 'number', ['number', 'string']
 git_oid_tostr_s = Module.cwrap('git_oid_tostr_s', 'string', ['number']);
 git_otype = {GIT_OBJ_ANY : -2, GIT_OBJ_COMMIT : 1, GIT_OBJ_TREE : 2, GIT_OBJ_BLOB : 3, GIT_OBJ_TAG : 4};
 git_error_code = {GIT_ENOTFOUND : -3, GIT_EINVALIDSPEC : -12};
+git_filemode_t = {GIT_FILEMODE_COMMIT : "160000"};
 git_oid = function() { return [0, 0, 0, 0, 0]; };
 NULL = 0;
 
@@ -58,9 +59,9 @@ var github_transport = {
 		github_transport.github_revwalk(github_transport.url, function(object_type, object_id, object_array) {
 			var data = Module._malloc(object_array.length);
 			Module.writeArrayToMemory(object_array, data);
-			console.log('write', git_odb_write(oid, odb, data, object_array.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
+			console.log('write', git_odb_write(oid, Module.getValue(odb, 'i32'), data, object_array.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
 			Module._free(data);
-			console.log(git_oid_tostr_s(oid) == object_id ? 'OK' : 'FAIL', object_type, object_id);
+			console.log(git_oid_tostr_s(oid) == object_id ? 'OK' : 'FAIL', object_type, 'original:', object_id, 'written:', git_oid_tostr_s(oid));
 		});
 		
 		Module._free(odb);
@@ -163,7 +164,8 @@ var github_transport = {
 	{
 		// access tokens are at https://github.com/settings/tokens
 		var result = null;
-		var api_url = github_repo_url.replace('github://', 'https://').replace('github.com', 'api.github.com/repos') + '/git/' + object_type + 's/' + object_id + (window.location.hash ? '?access_token=' + window.location.hash : '');
+		var api_url = github_repo_url.replace('github://', 'https://').replace('github.com', 'api.github.com/repos') + '/git/' + object_type + 's/' + object_id + (window.location.hash ? window.location.hash.replace('#', '?access_token=') : '');
+		//$.ajax(api_url, {async : true}).done(function(data) {result = data;});
 		$.ajax(api_url, {async : false}).done(function(data) {result = data;});
 		return result;
 	},
@@ -179,7 +181,7 @@ var github_transport = {
 			return new Uint8Array($.map(str.split(''), function(c){ return c.charCodeAt(); }));
 		}
 		
-		function decodeHex(hex) {
+		function decode_hex(hex) {
 			function codeToNibble(code) {
 			  code |= 0;
 			  return (code - ((code & 0x40) ? 0x57 : 0x30))|0;
@@ -231,8 +233,8 @@ var github_transport = {
 			switch(object.type)
 			{
 				case "commit":
-					object_stack.push({type : "tree", id : data.tree.sha});
 					object_stack = object_stack.concat($.map(data.parents, function(commit) { return {type : "commit", id : commit.sha}; }));
+					object_stack.push({type : "tree", id : data.tree.sha});
 					body_array = to_array(utf16_to_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha; }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message));
 					break;
 				case "tag":
@@ -240,11 +242,11 @@ var github_transport = {
 					body_array = to_array(utf16_to_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message));
 					break;
 				case "tree":
-					object_stack = object_stack.concat($.map(data.tree, function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
+					object_stack = object_stack.concat($.map($.grep(data.tree, function(tree_item) { return tree_item.mode != git_filemode_t.GIT_FILEMODE_COMMIT;}), function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
 					body_array = to_array($.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join(""));
 					break;
 				case "blob":
-					body_array = to_array(utf16_to_utf8(data.encoding == "base64" ? atob(data.contents) : data.encoding == "utf-8" ? decodeURIComponent(data.contents) : data.contents));
+					body_array = to_array(utf16_to_utf8(data.encoding == "base64" ? atob(data.content) : data.encoding == "utf-8" ? decodeURIComponent(data.content) : data.content));
 					break;
 			}
 			var header_array = to_array(object.type + " " + body_array.length + "\0");
@@ -260,7 +262,7 @@ Module['_main'] = function()
 {
 	console.log('init: ', git_libgit2_init());
 	console.log('register: ', git_transport_register('github', github_transport.git_transport_cb, NULL));
-	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/gittex', 'gittex', 0));
+	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/.vim', 'gittex', 0));
 }
 
 function gittex_eval(command)
