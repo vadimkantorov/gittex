@@ -173,20 +173,12 @@ var github_transport = {
 			return unescape(encodeURIComponent(str));
 		}
 		
-		function decode_hex(hex) {
-			function codeToNibble(code) {
-			  code |= 0;
-			  return (code - ((code & 0x40) ? 0x57 : 0x30))|0;
-			}
-		  var j = 0, l = hex.length;
-		  var raw = "";
-		  while (j < l) {
-		    raw += String.fromCharCode(
-		       (codeToNibble(hex.charCodeAt(j++)) << 4)
-		      | codeToNibble(hex.charCodeAt(j++))
-		    );
-		  }
-		  return raw;
+		function hex_to_ascii_bytes(hex_string)
+		{
+			var res = "";
+			for(var i = 0; i < hex_string.length; i += 2)
+				res += String.fromCharCode(parseInt(hex_string.substr(i, 2), 16));
+			return res;
 		}
 		
 		function format_person(person)
@@ -194,8 +186,9 @@ var github_transport = {
 			function safe(str) { return str.replace(/(?:^[\.,:;<>"']+|[\0\n<>]+|[\.,:;<>"']+$)/gm, ""); }
 			function two(num) { return (num < 10 ? "0" : "") + num; }
 
-			var seconds = person.date.seconds; // Math.floor(date.getTime() / 1000)
-			var offset = person.date.offset; //date.getTimezoneOffset();
+			var date = new Date(Date.parse(person.date));
+			var seconds =  date.getTime() / 1000;
+			var offset = date.getTimezoneOffset();
 			var neg = "+";
 			if (offset <= 0)
 				offset = -offset;
@@ -227,7 +220,7 @@ var github_transport = {
 				case "commit":
 					object_stack = object_stack.concat($.map(data.parents, function(commit) { return {type : "commit", id : commit.sha}; }));
 					object_stack.push({type : "tree", id : data.tree.sha});
-					body_ascii = utf16_to_utf8("tree " + data.tree + $.map(data.parents, function(commit) { return "\nparent " + commit.sha; }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message);
+					body_ascii = utf16_to_utf8("tree " + data.tree.sha + $.map(data.parents, function(commit) { return "\nparent " + commit.sha; }).join("") + "\nauthor " + format_person(data.author) + "\ncommitter " + format_person(data.committer) + "\n\n" + data.message);
 					break;
 				case "tag":
 					object_stack.push({type : data.object.type, id : data.object.sha});
@@ -235,7 +228,7 @@ var github_transport = {
 					break;
 				case "tree":
 					object_stack = object_stack.concat($.map($.grep(data.tree, function(tree_item) { return tree_item.mode != git_filemode_t.GIT_FILEMODE_COMMIT;}), function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
-					body_ascii = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.name) + "\0" + decode_hex(tree_item.sha) }).join("");
+					body_ascii = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.path) + "\0" + hex_to_ascii_bytes(tree_item.sha); }).join("");
 					break;
 				case "blob":
 					body_ascii = utf16_to_utf8(data.encoding == "base64" ? atob(data.content) : data.encoding == "utf-8" ? decodeURIComponent(data.content) : data.content);
