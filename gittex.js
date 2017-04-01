@@ -6,7 +6,7 @@ git_object_id = Module.cwrap('git_object_id', 'number', ['number']);
 git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
 giterr_clear = Module.cwrap('giterr_clear', null, []);
 git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
-git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
+git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'string', 'number', 'number']);
 git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_oid_fromstr = Module.cwrap('git_oid_fromstr', 'number', ['number', 'string']);
 git_oid_tostr_s = Module.cwrap('git_oid_tostr_s', 'string', ['number']);
@@ -56,12 +56,8 @@ var github_transport = {
 		console.log('transport.download_pack');
 		var odb = Module._malloc(4), oid = github_transport.struct_pack_i32(git_oid());
 		console.log('open odb', git_repository_odb__weakptr(odb, repo));
-		github_transport.github_revwalk(github_transport.url, function(object_type, object_id, header_ascii, body_ascii) {
-			var data = Module._malloc(header_ascii.length + body_ascii.length);
-			Module.writeAsciiToMemory(header_ascii, data, true);
-			Module.writeAsciiToMemory(body_ascii, data + header_ascii.length, true);
-			console.log('write', git_odb_write(oid, Module.getValue(odb, 'i32'), data, header_ascii.length + body_ascii.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
-			Module._free(data);
+		github_transport.github_revwalk(github_transport.url, function(object_type, object_id, body_ascii) {
+			console.log('write', git_odb_write(oid, Module.getValue(odb, 'i32'), body_ascii, body_ascii.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
 			console.log(git_oid_tostr_s(oid) == object_id ? 'OK' : 'FAIL', object_type, 'original:', object_id, 'written:', git_oid_tostr_s(oid));
 		});
 		
@@ -245,8 +241,7 @@ var github_transport = {
 					body_ascii = utf16_to_utf8(data.encoding == "base64" ? atob(data.content) : data.encoding == "utf-8" ? decodeURIComponent(data.content) : data.content);
 					break;
 			}
-			var header_ascii = object.type + " " + body_ascii.length + "\0";
-			callback(object.type, object.id, header_ascii, body_ascii);
+			callback(object.type, object.id, body_ascii);
 		}
 	}
 };
