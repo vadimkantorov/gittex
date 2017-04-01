@@ -177,11 +177,6 @@ var github_transport = {
 			return unescape(encodeURIComponent(str));
 		}
 		
-		function to_array(str)
-		{
-			return new Uint8Array($.map(str.split(''), function(c){ return c.charCodeAt(); }));
-		}
-		
 		function decode_hex(hex) {
 			function codeToNibble(code) {
 			  code |= 0;
