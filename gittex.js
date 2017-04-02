@@ -6,7 +6,7 @@ git_object_id = Module.cwrap('git_object_id', 'number', ['number']);
 git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
 giterr_clear = Module.cwrap('giterr_clear', null, []);
 git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
-git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'string', 'number', 'number']);
+git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
 git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_oid_fromstr = Module.cwrap('git_oid_fromstr', 'number', ['number', 'string']);
 git_oid_tostr_s = Module.cwrap('git_oid_tostr_s', 'string', ['number']);
@@ -57,8 +57,11 @@ var github_transport = {
 		var odb = Module._malloc(4), oid = github_transport.struct_pack_i32(git_oid());
 		console.log('open odb', git_repository_odb__weakptr(odb, repo));
 		github_transport.github_revwalk(github_transport.url, function(object_type, object_id, body_ascii) {
-			console.log('write', git_odb_write(oid, Module.getValue(odb, 'i32'), body_ascii, body_ascii.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
+			var data = Module._malloc(body_ascii.length);
+			Module.writeAsciiToMemory(body_ascii, data, true);
+			console.log('write', git_odb_write(oid, Module.getValue(odb, 'i32'), data, body_ascii.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY));
 			console.log(git_oid_tostr_s(oid) == object_id ? 'OK' : 'FAIL', object_type, 'original:', object_id, 'written:', git_oid_tostr_s(oid));
+			Module._free(data);
 		});
 		
 		Module._free(odb);
@@ -173,7 +176,7 @@ var github_transport = {
 			return unescape(encodeURIComponent(str));
 		}
 		
-		function hex_to_ascii_bytes(hex_string)
+		function hex_to_ascii(hex_string)
 		{
 			var res = "";
 			for(var i = 0; i < hex_string.length; i += 2)
@@ -227,8 +230,9 @@ var github_transport = {
 					body_ascii = utf16_to_utf8("object " + data.object + "\ntype " + data.type + "\ntag " + data.tag + "\ntagger " + format_person(data.tagger) + "\n\n" + data.message);
 					break;
 				case "tree":
+					data.tree.sort(function(a, b) {return a.path < b.path ? -1 : a.path > b.path ? 1 : 0; });
 					object_stack = object_stack.concat($.map($.grep(data.tree, function(tree_item) { return tree_item.mode != git_filemode_t.GIT_FILEMODE_COMMIT;}), function(tree_item) { return {type : tree_item.type, id : tree_item.sha}; }));
-					body_ascii = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.path) + "\0" + hex_to_ascii_bytes(tree_item.sha); }).join("");
+					body_ascii = $.map(data.tree, function(tree_item) { return tree_item.mode + " " + utf16_to_utf8(tree_item.path) + "\0" + hex_to_ascii(tree_item.sha); }).join("");
 					break;
 				case "blob":
 					body_ascii = utf16_to_utf8(data.encoding == "base64" ? atob(data.content) : data.encoding == "utf-8" ? decodeURIComponent(data.content) : data.content);
