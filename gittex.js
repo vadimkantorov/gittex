@@ -193,10 +193,7 @@ var github_transport = {
 		
 		function hex_to_ascii(hex_string)
 		{
-			var res = "";
-			for(var i = 0; i < hex_string.length; i += 2)
-				res += String.fromCharCode(parseInt(hex_string.substr(i, 2), 16));
-			return res;
+			return $.map(Array(hex_string.length / 2), function(_, i) {return String.fromCharCode(parseInt(hex_string.substr(2 * i, 2), 16));}).join('');
 		}
 		
 		function format_person(person)
