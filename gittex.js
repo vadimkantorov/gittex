@@ -1,3 +1,4 @@
+//git_libgit2_shutdown = Module.cwrap('git_libgit2_shutdown', 'number', []);
 git_clone = Module.cwrap('git_clone', 'number', ['number', 'string', 'string', 'number']);
 git_libgit2_init = Module.cwrap('git_libgit2_init', 'number', []);
 git_transport_register = Module.cwrap('git_transport_register', 'number', ['string', 'number', 'number']);
