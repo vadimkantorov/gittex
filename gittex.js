@@ -7,7 +7,7 @@ git_oid_cpy = Module.cwrap('git_oid_cpy', null, ['number', 'number']);
 giterr_clear = Module.cwrap('giterr_clear', null, []);
 git_repository_odb__weakptr = Module.cwrap('git_repository_odb__weakptr', 'number', ['number', 'number']);
 git_odb_write = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
-//git_odb_hash = Module.cwrap('git_odb_write', 'number', ['number', 'number', 'number', 'number', 'number']);
+//git_odb_hash = Module.cwrap('git_odb_hash', 'number', ['number', 'number', 'number', 'number', 'number']);
 git_object_free = Module.cwrap('git_object_free', null, ['number']);
 git_oid_fromstr = Module.cwrap('git_oid_fromstr', 'number', ['number', 'string']);
 git_oid_tostr_s = Module.cwrap('git_oid_tostr_s', 'string', ['number']);
@@ -63,12 +63,12 @@ var github_transport = {
 				var body_fixed = body_ascii + Array(i + 1).join('\n');
 				var data = Module._malloc(body_fixed.length);
 				Module.writeAsciiToMemory(body_fixed, data, true);
-				git_odb_write(oid, Module.getValue(odb, 'i32'), data, body_fixed.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
+				git_odb_write(oid, Module.getValue(odb, '*'), data, body_fixed.length, object_type == "commit" ? git_otype.GIT_OBJ_COMMIT : object_type == "tree" ? git_otype.GIT_OBJ_TREE : object_type == "blob" ? git_otype.GIT_OBJ_BLOB : object_type == "tag" ? git_otype.GIT_OBJ_TAG : git_otype.GIT_OBJ_ANY);
 				Module._free(data);
 				if(git_oid_tostr_s(oid) == object_id)
 				{
-					if(object_type == 'tree')
-						console.log('OK tree', body_ascii);
+					console.log(object_type, 'OK');
+					console.log(body_ascii);
 					break;
 				}
 			}
@@ -128,7 +128,7 @@ var github_transport = {
 		console.log('transport.set_custom_headers');
 		var custom_headers_count = Module.getValue(custom_headers + 4, 'i32');
 		var custom_headers_strings = Module.getValue(custom_headers, '*');
-		github_transport.custom_headers = $.map(new Array(custom_headers_count), function(_, i) { return Module.UTF8ToString(Module.getValue(custom_headers_strings + 4 * i, '*')); });
+		github_transport.custom_headers = $.map(Array(custom_headers_count), function(_, i) { return Module.UTF8ToString(Module.getValue(custom_headers_strings + 4 * i, '*')); });
 		return 0;
 	},
 	cancel			: function(transport) { console.log('transport.cancel', 'nop'); return 0; },
@@ -179,7 +179,8 @@ var github_transport = {
 	{
 		// access tokens are at https://github.com/settings/tokens
 		var result = null;
-		var api_url = github_repo_url.replace('github://', 'https://').replace('github.com', 'api.github.com/repos') + '/git/' + object_type + 's/' + object_id + (window.location.hash ? window.location.hash.replace('#', '?access_token=') : '');
+		var params = (window.location.hash ? [{key : "access_token", value : window.location.hash.replace('#', '')}] : []).concat(object_type == 'tree' ? [{key : 'recursive', value : 1}] : []);
+		var api_url = github_repo_url.replace('github://', 'https://').replace('github.com', 'api.github.com/repos') + '/git/' + object_type + 's/' + object_id + (params ? "?" + $.map(params, function(p) { return p.key + '=' + p.value; }).join("&") : "");
 		//$.ajax(api_url, {async : true}).done(function(data) {result = data;});
 		$.ajax(api_url, {async : false}).done(function(data) {result = data;});
 		return result;
@@ -250,7 +251,8 @@ var github_transport = {
 					body_ascii = utf16_to_utf8(data.encoding == "base64" ? atob(data.content) : data.encoding == "utf-8" ? decodeURIComponent(data.content) : data.content);
 					break;
 			}
-			callback(object.type, object.id, body_ascii);
+			if(object.type == "tree")
+				callback(object.type, object.id, body_ascii);
 		}
 	}
 };
@@ -259,7 +261,7 @@ Module['_main'] = function()
 {
 	console.log('init: ', git_libgit2_init());
 	console.log('register: ', git_transport_register('github', github_transport.git_transport_cb, NULL));
-	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/.vim', 'gittex', 0));
+	console.log('clone:', git_clone(Module._malloc(4), 'github://github.com/vadimkantorov/gittex', 'gittex', 0));
 }
 
 function gittex_eval(command)
