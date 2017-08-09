@@ -1,3 +1,32 @@
+# phosphor
+
+### Cloning source
+```shell
+git clone https://github.com/phosphorjs/phosphor
+cd phosphor
+git clone https://github.com/vadimkantorov/gittex examples/example-git
+```
+
+### Preparing Phosphor
+```shell
+npm install
+npm run build
+```
+
+### Building gittex
+```shell
+cd examples/example-git
+npm install
+npm run build
+```
+
+### Serving gittex
+```
+python -m http.server
+```
+
+
+
 # gittex
 
 A repo for building a git-savvy LaTeX editor running in browser. Workflow:

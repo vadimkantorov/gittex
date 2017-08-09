@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@phosphor/example-dockpanel",
+  "name": "@phosphor/example-git",
   "version": "0.1.13",
   "dependencies": {
     "@phosphor/commands": "^1.4.0",
